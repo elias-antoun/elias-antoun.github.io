@@ -8,7 +8,7 @@ import { z } from 'astro/zod';
  * while the exported test schema uses a plain string. The validation logic
  * is otherwise identical.
  */
-const projectFields = (coverType: z.ZodTypeAny) =>
+const projectFields = <C extends z.ZodTypeAny>(coverType: C) =>
   z.object({
     title: z.string().min(1),
     summary: z.string().min(1),
@@ -41,7 +41,7 @@ const projectFields = (coverType: z.ZodTypeAny) =>
  * than something a reviewer has to notice. The callback parameter is inferred
  * from the concrete object schema, so it stays type-safe without annotation.
  */
-export const projectSchema = (coverType: z.ZodTypeAny) =>
+export const projectSchema = <C extends z.ZodTypeAny>(coverType: C) =>
   projectFields(coverType).refine(
     (data) => !data.cover || (typeof data.coverAlt === 'string' && data.coverAlt.trim().length > 0),
     { message: 'coverAlt is required and must be non-empty when cover is set', path: ['coverAlt'] }

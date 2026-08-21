@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import Tag from './ui/Tag.astro';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const { title, summary, tags, cover, coverAlt, links, metrics } = project.data;
+
+// Fallback tile: initials from the title, shown when no cover image exists.
+// Every card uses this today — cover images are supplied later.
+const initials = title
+  .split(' ')
+  .filter((word) => /^[A-Za-z]/.test(word))
+  .slice(0, 3)
+  .map((word) => word[0].toUpperCase())
+  .join('');
+---
+
+<article class="flex flex-col overflow-hidden rounded border border-border bg-surface">
+  {
+    cover && coverAlt ? (
+      <Image src={cover} alt={coverAlt} loading="lazy" class="aspect-video w-full object-cover" />
+    ) : (
+      <div
+        aria-hidden="true"
+        class="flex aspect-video w-full items-center justify-center border-b border-border bg-bg"
+      >
+        <span class="font-mono text-3xl text-border">{initials}</span>
+      </div>
+    )
+  }
+
+  <div class="flex flex-1 flex-col p-4">
+    <h3 class="font-semibold">{title}</h3>
+    <p class="mt-2 flex-1 text-sm leading-relaxed text-muted">{summary}</p>
+
+    {
+      metrics && metrics.length > 0 && (
+        <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-3">
+          {metrics.map((metric) => (
+            <div>
+              <dt class="font-mono text-xs font-medium text-accent">{metric.value}</dt>
+              <dd class="mt-0.5 text-xs text-muted">{metric.label}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+
+    <div class="mt-4 flex flex-wrap gap-1.5">
+      {tags.map((tag) => <Tag label={tag} />)}
+    </div>
+
+    {
+      links?.repo && (
+        <a
+          href={links.repo}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-4 font-mono text-xs text-accent hover:underline"
+        >
+          View repository &rarr;
+        </a>
+      )
+    }
+  </div>
+</article>
