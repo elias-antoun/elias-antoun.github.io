@@ -1,9 +1,12 @@
 ---
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import { profile } from '../data/site';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head><meta charset="utf-8" /><title>scaffold check</title></head>
-  <body><h1 class="font-mono text-accent">scaffold check</h1></body>
-</html>
+<Layout title={`${profile.name} — ${profile.title}`} description={profile.positioning}>
+  <main id="main">
+    <ThemeToggle />
+    <h1>{profile.name}</h1>
+  </main>
+</Layout>

@@ -1,0 +1,12 @@
+---
+interface Props {
+  value: string;
+  label: string;
+}
+const { value, label } = Astro.props;
+---
+
+<div class="border-l border-border pl-4">
+  <div class="font-mono text-2xl font-medium text-text">{value}</div>
+  <div class="mt-1 text-xs text-muted">{label}</div>
+</div>

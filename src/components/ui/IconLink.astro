@@ -1,0 +1,17 @@
+---
+interface Props {
+  href: string;
+  label: string;
+}
+const { href, label } = Astro.props;
+const external = href.startsWith('http');
+---
+
+<a
+  href={href}
+  aria-label={label}
+  class="font-mono text-sm text-muted transition-colors duration-150 hover:text-accent"
+  {...external ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+>
+  <slot />
+</a>

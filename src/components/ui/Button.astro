@@ -1,0 +1,19 @@
+---
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary';
+  download?: boolean;
+}
+const { href, variant = 'primary', download = false } = Astro.props;
+
+const base =
+  'inline-flex items-center gap-2 rounded px-4 py-2 text-sm font-medium transition-colors duration-150';
+const styles = {
+  primary: 'bg-accent text-white hover:opacity-90',
+  secondary: 'border border-border text-text hover:border-accent',
+};
+---
+
+<a href={href} class={`${base} ${styles[variant]}`} {...download ? { download: true } : {}}>
+  <slot />
+</a>

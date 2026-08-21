@@ -1,0 +1,42 @@
+---
+// The label, pressed state, and icon text are corrected by the script on load,
+// so they always describe the *next* theme rather than the current one.
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  aria-label="Switch to dark theme"
+  aria-pressed="false"
+  class="rounded border border-border px-2 py-1 font-mono text-xs text-muted transition-colors duration-150 hover:border-accent"
+>
+  <span aria-hidden="true" id="theme-toggle-icon">dark</span>
+</button>
+
+<script>
+  const KEY = 'theme';
+  const root = document.documentElement;
+  const button = document.getElementById('theme-toggle');
+  const icon = document.getElementById('theme-toggle-icon');
+
+  function sync(theme: string) {
+    root.setAttribute('data-theme', theme);
+    const next = theme === 'dark' ? 'light' : 'dark';
+    button?.setAttribute('aria-label', `Switch to ${next} theme`);
+    button?.setAttribute('aria-pressed', String(theme === 'dark'));
+    if (icon) icon.textContent = next;
+  }
+
+  // The inline bootstrap in Layout.astro has already set data-theme.
+  sync(root.getAttribute('data-theme') ?? 'light');
+
+  button?.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    try {
+      localStorage.setItem(KEY, next);
+    } catch {
+      // Storage unavailable (private mode); the choice applies to this page only.
+    }
+    sync(next);
+  });
+</script>
