@@ -1,0 +1,20 @@
+---
+import Section from './Section.astro';
+import Tag from './ui/Tag.astro';
+import { skillGroups } from '../data/site';
+---
+
+<Section id="skills" index="05" heading="Skills">
+  <div class="space-y-6">
+    {
+      skillGroups.map((group) => (
+        <div class="sm:grid sm:grid-cols-[10rem_1fr] sm:gap-6">
+          <h3 class="font-mono text-xs uppercase tracking-wide text-muted sm:pt-1">{group.name}</h3>
+          <div class="mt-2 flex flex-wrap gap-1.5 sm:mt-0">
+            {group.items.map((item) => <Tag label={item} />)}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</Section>

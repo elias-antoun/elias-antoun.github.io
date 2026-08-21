@@ -1,0 +1,32 @@
+---
+import Section from './Section.astro';
+import Button from './ui/Button.astro';
+import IconLink from './ui/IconLink.astro';
+import { socials, languages } from '../data/site';
+import { obfuscateEmail } from '../lib/email';
+
+const email = obfuscateEmail(socials[0].handle, 'outlook.com');
+const externalSocials = socials.filter((s) => s.href.startsWith('http'));
+---
+
+<Section id="contact" index="07" heading="Contact">
+  <p class="max-w-2xl text-muted">
+    Open to internship and new-grad engineering roles. The fastest way to reach me is email.
+  </p>
+
+  <div class="mt-6 flex flex-wrap items-center gap-4">
+    <Button href={email.href}>{email.text}</Button>
+    {externalSocials.map((s) => <IconLink href={s.href} label={s.label}>{s.label}</IconLink>)}
+  </div>
+
+  <dl class="mt-10 flex flex-wrap gap-8">
+    {
+      languages.map((language) => (
+        <div>
+          <dt class="text-sm">{language.name}</dt>
+          <dd class="mt-0.5 font-mono text-xs text-muted">{language.level}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</Section>
