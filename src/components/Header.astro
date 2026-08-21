@@ -1,0 +1,68 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { nav, profile } from '../data/site';
+
+const initials = profile.name
+  .split(' ')
+  .map((part) => part[0])
+  .join('');
+---
+
+<header
+  class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-bg py-3"
+>
+  <a href="#main" class="font-mono text-sm font-medium tracking-tight">{initials}</a>
+
+  <nav aria-label="Sections" class="hidden gap-4 sm:flex">
+    {
+      nav.map((item) => (
+        <a
+          href={`#${item.id}`}
+          data-nav-link={item.id}
+          class="text-sm text-muted transition-colors duration-150 hover:text-text aria-[current=true]:text-accent"
+        >
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="flex items-center gap-2">
+    <a
+      href="/Elias_Antoun_Resume.pdf"
+      download
+      class="rounded border border-border px-2 py-1 font-mono text-xs transition-colors duration-150 hover:border-accent"
+    >
+      CV &darr;
+    </a>
+    <ThemeToggle />
+  </div>
+</header>
+
+<script>
+  // Scroll-spy: mark the nav link whose section is currently in view.
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]');
+  const byId = new Map<string, HTMLAnchorElement>();
+  links.forEach((link) => {
+    const id = link.dataset.navLink;
+    if (id) byId.set(id, link);
+  });
+
+  const sections = [...byId.keys()]
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => el !== null);
+
+  if (sections.length > 0 && 'IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          byId.forEach((link) => link.removeAttribute('aria-current'));
+          byId.get(entry.target.id)?.setAttribute('aria-current', 'true');
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' }
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+</script>
