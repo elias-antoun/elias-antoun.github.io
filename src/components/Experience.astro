@@ -1,0 +1,59 @@
+---
+import Section from './Section.astro';
+import { experience, universityRoles } from '../data/site';
+---
+
+<Section id="experience" index="03" heading="Experience">
+  <div class="space-y-12">
+    {
+      experience.map((role) => (
+        <article class="sm:grid sm:grid-cols-[9rem_1fr] sm:gap-6">
+          <p class="font-mono text-xs text-muted sm:pt-1">{role.period}</p>
+
+          <div class="mt-2 sm:mt-0">
+            <h3 class="font-semibold">
+              {role.title} <span class="text-muted">· {role.org}</span>
+            </h3>
+
+            {role.metrics.length > 0 && (
+              <dl class="mt-4 flex flex-wrap gap-x-8 gap-y-3 border-y border-border py-3">
+                {role.metrics.map((metric) => (
+                  <div>
+                    <dt class="font-mono text-sm font-medium text-accent">{metric.value}</dt>
+                    <dd class="mt-0.5 text-xs text-muted">{metric.label}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <ul class="mt-4 space-y-2">
+              {role.bullets.map((bullet) => (
+                <li class="text-sm leading-relaxed text-muted">{bullet}</li>
+              ))}
+            </ul>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <h3 class="mt-16 font-mono text-xs uppercase tracking-wide text-muted">
+    University &amp; teaching
+  </h3>
+
+  <div class="mt-4 space-y-6">
+    {
+      universityRoles.map((role) => (
+        <article class="sm:grid sm:grid-cols-[9rem_1fr] sm:gap-6">
+          <p class="font-mono text-xs text-muted sm:pt-0.5">{role.period}</p>
+          <div class="mt-1 sm:mt-0">
+            <h4 class="text-sm font-medium">
+              {role.title} <span class="text-muted">· {role.org}</span>
+            </h4>
+            <p class="mt-1 text-sm text-muted">{role.summary}</p>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</Section>
