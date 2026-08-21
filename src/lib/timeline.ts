@@ -40,7 +40,14 @@ export function spanToBar(span: Span, axis: AxisDomain = DEGREE_AXIS): {
 
   const left = ((start - axis.from) / total) * 100;
   const width = Math.max(0, ((end - start) / total) * 100);
-  return { left, width };
+  // Rounded so the emitted inline style is "70.8333%" rather than float noise
+  // like "70.83333333333144%". Well below one pixel at any viewport.
+  return { left: round(left), width: round(width) };
+}
+
+/** Four decimal places — sub-pixel at any realistic width. */
+function round(value: number): number {
+  return Math.round(value * 1e4) / 1e4;
 }
 
 /** Whole years inside the domain, for axis gridlines and labels. */

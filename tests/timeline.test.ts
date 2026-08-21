@@ -48,6 +48,17 @@ describe('spanToBar', () => {
     });
   });
 
+  it('rounds output so inline styles carry no float noise', () => {
+    const { left, width } = spanToBar(
+      { start: 2026 + 4 / 12, end: 2026 + 8 / 12 },
+      { from: 2023.5, to: 2027.5 }
+    );
+    for (const value of [left, width]) {
+      const decimals = (String(value).split('.')[1] ?? '').length;
+      expect(decimals, `${value} has too many decimals`).toBeLessThanOrEqual(4);
+    }
+  });
+
   it('keeps every bar inside its track', () => {
     const { left, width } = spanToBar({ start: 2019, end: 2031 }, axis);
     expect(left).toBeGreaterThanOrEqual(0);
