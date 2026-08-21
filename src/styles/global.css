@@ -6,7 +6,11 @@
 @import '@fontsource/ibm-plex-mono/latin-400.css';
 @import '@fontsource/ibm-plex-mono/latin-500.css';
 
-/* Light palette — the default. */
+/* Light palette — the default.
+   --accent-contrast is the text colour to use ON an accent background. It is
+   not decorative: the dark accent is a light blue, so white text on it scores
+   2.69:1 and fails WCAG AA. This token keeps accent buttons legible in both
+   themes. See tests/tokens.test.ts, which enforces the ratios. */
 :root {
   --bg: #fcfcfb;
   --surface: #ffffff;
@@ -14,6 +18,7 @@
   --text: #14161a;
   --muted: #5f646e;
   --accent: #1d4ed8;
+  --accent-contrast: #ffffff;
 }
 
 /* An explicit dark choice wins in both directions. */
@@ -24,6 +29,7 @@
   --text: #e8eaed;
   --muted: #9ba1ac;
   --accent: #6e9bff;
+  --accent-contrast: #0e1116;
 }
 
 /* System preference, unless the user explicitly chose light. */
@@ -35,6 +41,7 @@
     --text: #e8eaed;
     --muted: #9ba1ac;
     --accent: #6e9bff;
+    --accent-contrast: #0e1116;
   }
 }
 
@@ -45,6 +52,7 @@
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
