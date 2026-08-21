@@ -1,4 +1,3 @@
-import { decimalYear, NOW, type Span } from '../lib/timeline';
 
 export interface Social {
   label: 'Email' | 'LinkedIn' | 'GitHub';
@@ -11,8 +10,6 @@ export interface Role {
   org: string;
   /** Human-readable period, e.g. "May 2026 – Aug 2026". */
   period: string;
-  /** Machine-readable span, used to position the role on the time axis. */
-  span: Span;
   current: boolean;
   bullets: string[];
   metrics: Array<{ value: string; label: string }>;
@@ -60,7 +57,6 @@ export const experience: Role[] = [
     title: 'AI Engineer Intern',
     org: 'ANB / Layer10',
     period: 'May 2026 – Aug 2026',
-    span: { start: decimalYear(2026, 5), end: decimalYear(2026, 9) },
     current: false,
     bullets: [
       'Replaced manual accounting workflows at a retail automotive group with autonomous document-processing agents handling 1,000 invoices per month.',
@@ -78,7 +74,6 @@ export const experience: Role[] = [
     title: 'Robotics Intern',
     org: 'inmind.academy',
     period: 'Jun 2026 – Aug 2026',
-    span: { start: decimalYear(2026, 6), end: decimalYear(2026, 9) },
     current: false,
     bullets: [
       'Built and containerised ROS 2 applications with CMake, Docker, and Docker Compose.',
@@ -93,7 +88,6 @@ export const universityRoles = [
     title: 'Teaching and Lab Assistant',
     org: 'Notre Dame University – Louaize',
     period: 'Sept 2024 – present',
-    span: { start: decimalYear(2024, 9), end: NOW },
     summary:
       'Support students in circuit analysis, simulations, and hardware implementation. Authored VHDL simulation tutorials using Synopsys tools.',
   },
@@ -101,7 +95,6 @@ export const universityRoles = [
     title: 'Technical Coordinator',
     org: 'IEEE NDU MC',
     period: 'Sept 2024 – present',
-    span: { start: decimalYear(2024, 9), end: NOW },
     summary:
       'Organise and coordinate technical workshops and engineering events for IEEE student members.',
   },
@@ -109,7 +102,6 @@ export const universityRoles = [
     title: 'Private Tutor',
     org: 'Independent',
     period: 'Sept 2023 – present',
-    span: { start: decimalYear(2023, 9), end: NOW },
     summary: 'Tutor grade 9 to 12 and university students in mathematics, physics, and chemistry.',
   },
 ] as const;

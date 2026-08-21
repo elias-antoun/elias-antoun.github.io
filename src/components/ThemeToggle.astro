@@ -8,9 +8,9 @@
   type="button"
   aria-label="Switch to dark theme"
   aria-pressed="false"
-  class="font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ink-soft transition-colors duration-150 hover:text-signal"
+  class="text-sm text-muted transition-colors duration-150 hover:text-accent"
 >
-  <span aria-hidden="true" id="theme-toggle-icon">dark</span>
+  <span aria-hidden="true" id="theme-toggle-icon">Dark</span>
 </button>
 
 <script>
@@ -24,7 +24,7 @@
     const next = theme === 'dark' ? 'light' : 'dark';
     button?.setAttribute('aria-label', `Switch to ${next} theme`);
     button?.setAttribute('aria-pressed', String(theme === 'dark'));
-    if (icon) icon.textContent = next;
+    if (icon) icon.textContent = next === 'dark' ? 'Dark' : 'Light';
   }
 
   // The inline bootstrap in Layout.astro has already set data-theme.

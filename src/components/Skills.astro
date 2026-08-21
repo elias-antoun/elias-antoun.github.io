@@ -1,21 +1,19 @@
 ---
 import Section from './Section.astro';
 import { skillGroups } from '../data/site';
-
-const total = skillGroups.reduce((sum, group) => sum + group.items.length, 0);
 ---
 
-<Section id="skills" heading="Skills" meta={`${skillGroups.length} domains · ${total} tools`}>
-  <div class="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+<Section id="skills" eyebrow="Stack" heading="Skills">
+  <div class="grid gap-5 sm:grid-cols-2">
     {
       skillGroups.map((group) => (
-        <div class="border-t border-rule pt-4">
-          <h3 class="readout">{group.name}</h3>
-          <ul class="mt-3 space-y-1.5">
+        <div class="card p-5">
+          <h3 class="text-sm font-semibold tracking-tight">{group.name}</h3>
+          <div class="mt-3 flex flex-wrap gap-1.5">
             {group.items.map((item) => (
-              <li class="font-mono text-[0.8125rem] text-ink">{item}</li>
+              <span class="chip">{item}</span>
             ))}
-          </ul>
+          </div>
         </div>
       ))
     }

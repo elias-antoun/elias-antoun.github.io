@@ -1,41 +1,47 @@
 ---
-import SignalTrace from './SignalTrace.astro';
 import Button from './ui/Button.astro';
-import IconLink from './ui/IconLink.astro';
 import { profile, socials, stats } from '../data/site';
 import { obfuscateEmail } from '../lib/email';
 
 const email = obfuscateEmail(socials[0].handle, 'outlook.com');
 const externalSocials = socials.filter((s) => s.href.startsWith('http'));
-
-// Credentials as one instrument readout rather than three stat tiles.
-const readout = stats.map((s) => `${s.value} ${s.label}`).join('  ·  ');
 ---
 
-<div class="pt-10 pb-14 sm:pt-14 sm:pb-20">
-  <p class="readout">{profile.availability}</p>
+<section id="top" class="border-b border-border">
+  <div class="mx-auto w-full max-w-5xl px-6 py-20 sm:py-28">
+    <p class="eyebrow">{profile.availability}</p>
 
-  <!-- The space before the span is load-bearing: without it the accessible
-       name and any copy-paste collapse to "EliasAntoun". -->
-  <h1 class="display mt-5 text-[clamp(2.6rem,9vw,5.25rem)]">
-    Elias <span class="block">Antoun</span>
-  </h1>
+    <h1 class="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">Elias Antoun</h1>
+    <p class="mt-3 text-xl font-medium text-muted sm:text-2xl">{profile.title}</p>
 
-  <p class="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-ink-soft">
-    {profile.positioning}
-  </p>
+    <p class="mt-6 max-w-2xl leading-relaxed text-muted">{profile.positioning}</p>
 
-  <p class="readout mt-6 normal-case tracking-normal">{readout}</p>
+    <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-4">
+      {
+        stats.map((stat) => (
+          <div>
+            <dt class="font-mono text-2xl font-medium text-accent">{stat.value}</dt>
+            <dd class="mt-1 text-xs text-muted">{stat.label}</dd>
+          </div>
+        ))
+      }
+    </dl>
 
-  <div class="mt-10">
-    <SignalTrace />
+    <div class="mt-10 flex flex-wrap items-center gap-3">
+      <Button href={email.href}>Get in touch</Button>
+      <Button href="/Elias_Antoun_Resume.pdf" variant="secondary" download>Download CV</Button>
+      {
+        externalSocials.map((s) => (
+          <a
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm font-medium text-muted transition-colors duration-150 hover:text-accent"
+          >
+            {s.label}
+          </a>
+        ))
+      }
+    </div>
   </div>
-
-  <div class="mt-9 flex flex-wrap items-center gap-x-3 gap-y-3">
-    <Button href={email.href}>Get in touch</Button>
-    <Button href="/Elias_Antoun_Resume.pdf" variant="secondary" download>Download CV</Button>
-    <span class="ml-auto flex gap-4">
-      {externalSocials.map((s) => <IconLink href={s.href} label={s.label}>{s.label}</IconLink>)}
-    </span>
-  </div>
-</div>
+</section>

@@ -6,34 +6,36 @@ import { partitionProjects } from '../lib/projects';
 
 const entries = await getCollection('projects');
 const { featured, compact } = partitionProjects(entries);
-
-// The readout counts real things rather than numbering the section.
-const publicRepos = entries.filter((e) => e.data.links?.repo).length;
-const meta = `${entries.length} projects · ${publicRepos} public repos`;
 ---
 
-<Section id="projects" heading="Projects" meta={meta}>
-  <div class="grid gap-x-10 gap-y-9 sm:grid-cols-2">
+<Section
+  id="projects"
+  eyebrow="Builds"
+  heading="Projects"
+  lede="Machine learning, robotics and embedded work, from coursework prototypes to internship systems."
+  alt
+>
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     {featured.map((project) => <ProjectCard project={project} />)}
   </div>
 
   {
     compact.length > 0 && (
-      <div class="mt-14 border-t border-rule pt-6">
-        <h3 class="readout mb-4">Also built · coursework</h3>
-        <ul class="space-y-3">
+      <div class="mt-10">
+        <h3 class="text-sm font-semibold tracking-tight">Also built</h3>
+        <div class="mt-4 grid gap-4 sm:grid-cols-3">
           {compact.map((project) => (
-            <li class="flex flex-wrap items-baseline gap-x-3">
-              <span class="text-sm font-medium">{project.data.title}</span>
-              <span class="font-mono text-[0.6875rem] text-ink-soft">
-                {project.data.tags.join(' · ')}
-              </span>
-              <span class="w-full text-xs text-ink-soft sm:w-auto sm:flex-1">
-                {project.data.summary}
-              </span>
-            </li>
+            <article class="card p-5">
+              <h4 class="text-sm font-semibold">{project.data.title}</h4>
+              <p class="mt-2 text-sm leading-relaxed text-muted">{project.data.summary}</p>
+              <div class="mt-4 flex flex-wrap gap-1.5">
+                {project.data.tags.map((tag) => (
+                  <span class="chip">{tag}</span>
+                ))}
+              </div>
+            </article>
           ))}
-        </ul>
+        </div>
       </div>
     )
   }

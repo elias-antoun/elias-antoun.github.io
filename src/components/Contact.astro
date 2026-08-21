@@ -1,7 +1,6 @@
 ---
 import Section from './Section.astro';
 import Button from './ui/Button.astro';
-import IconLink from './ui/IconLink.astro';
 import { socials, languages } from '../data/site';
 import { obfuscateEmail } from '../lib/email';
 
@@ -9,24 +8,38 @@ const email = obfuscateEmail(socials[0].handle, 'outlook.com');
 const externalSocials = socials.filter((s) => s.href.startsWith('http'));
 ---
 
-<Section id="contact" heading="Contact" meta="Open to 2027 roles">
-  <p class="max-w-xl text-sm leading-relaxed text-ink-soft">
-    Looking for internships and new-grad engineering work. Email reaches me fastest.
-  </p>
+<Section
+  id="contact"
+  eyebrow="Connect"
+  heading="Get in touch"
+  lede="Open to internships and new-grad engineering roles. Email reaches me fastest."
+>
+  <div class="card p-6 sm:p-8">
+    <div class="flex flex-wrap items-center gap-4">
+      <Button href={email.href}>{email.text}</Button>
+      {
+        externalSocials.map((s) => (
+          <a
+            href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm font-medium text-muted transition-colors duration-150 hover:text-accent"
+          >
+            {s.label}
+          </a>
+        ))
+      }
+    </div>
 
-  <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
-    <Button href={email.href}>{email.text}</Button>
-    {externalSocials.map((s) => <IconLink href={s.href} label={s.label}>{s.label}</IconLink>)}
+    <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-3 border-t border-border pt-6">
+      {
+        languages.map((language) => (
+          <div class="flex items-baseline gap-2">
+            <dt class="text-sm font-medium">{language.name}</dt>
+            <dd class="font-mono text-xs text-muted">{language.level}</dd>
+          </div>
+        ))
+      }
+    </dl>
   </div>
-
-  <dl class="mt-12 flex flex-wrap gap-x-10 gap-y-3 border-t border-rule pt-5">
-    {
-      languages.map((language) => (
-        <div class="flex items-baseline gap-2">
-          <dt class="text-sm">{language.name}</dt>
-          <dd class="font-mono text-[0.6875rem] text-ink-soft">{language.level}</dd>
-        </div>
-      ))
-    }
-  </dl>
 </Section>

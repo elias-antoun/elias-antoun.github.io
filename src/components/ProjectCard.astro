@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
+import ProjectCover from './ProjectCover.astro';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -9,46 +10,48 @@ const { project } = Astro.props;
 const { title, summary, tags, cover, coverAlt, links, metrics } = project.data;
 ---
 
-<article class="border-t border-rule pt-5">
-  <h3 class="display text-base sm:text-lg">{title}</h3>
+<article class="card card-hover flex flex-col overflow-hidden">
+  <div class="aspect-video w-full border-b border-border">
+    {
+      cover && coverAlt ? (
+        <Image src={cover} alt={coverAlt} loading="lazy" class="h-full w-full object-cover" />
+      ) : (
+        <ProjectCover slug={project.id} />
+      )
+    }
+  </div>
 
-  {
-    cover && coverAlt && (
-      <Image
-        src={cover}
-        alt={coverAlt}
-        loading="lazy"
-        class="mt-4 aspect-video w-full rounded-sm border border-rule object-cover"
-      />
-    )
-  }
+  <div class="flex flex-1 flex-col p-5">
+    <h3 class="text-base font-semibold tracking-tight">{title}</h3>
+    <p class="mt-2 flex-1 text-sm leading-relaxed text-muted">{summary}</p>
 
-  <p class="mt-2.5 max-w-prose text-sm leading-relaxed text-ink-soft">{summary}</p>
+    {
+      metrics && metrics.length > 0 && (
+        <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          {metrics.map((metric) => (
+            <div>
+              <dt class="font-mono text-sm font-medium text-accent">{metric.value}</dt>
+              <dd class="mt-0.5 text-[0.6875rem] text-muted">{metric.label}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
 
-  {
-    metrics && metrics.length > 0 && (
-      <dl class="mt-4 flex flex-wrap gap-x-7 gap-y-2">
-        {metrics.map((metric) => (
-          <div>
-            <dt class="font-mono text-sm font-medium text-signal">{metric.value}</dt>
-            <dd class="mt-0.5 text-[0.6875rem] text-ink-soft">{metric.label}</dd>
-          </div>
-        ))}
-      </dl>
-    )
-  }
+    <div class="mt-5 flex flex-wrap items-center gap-1.5">
+      {tags.map((tag) => <span class="chip">{tag}</span>)}
+    </div>
 
-  <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-    {tags.map((tag) => <span class="font-mono text-[0.6875rem] text-ink-soft">{tag}</span>)}
     {
       links?.repo && (
         <a
           href={links.repo}
           target="_blank"
           rel="noopener noreferrer"
-          class="ml-auto font-mono text-[0.6875rem] text-signal underline decoration-1 underline-offset-4 hover:no-underline"
+          class="mt-4 inline-flex w-fit items-center gap-1.5 text-sm font-medium text-accent hover:underline"
         >
-          repository
+          View repository
+          <span aria-hidden="true">&rarr;</span>
         </a>
       )
     }

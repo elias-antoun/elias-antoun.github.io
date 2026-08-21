@@ -2,14 +2,18 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="flex flex-wrap items-baseline justify-between gap-3 border-t border-rule py-8">
-  <span class="readout">Elias Antoun · {year}</span>
-  <a
-    href="https://github.com/elias-antoun/elias-antoun.github.io"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="readout underline decoration-rule underline-offset-4 hover:text-signal hover:decoration-signal"
+<footer class="border-t border-border">
+  <div
+    class="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-8"
   >
-    Source
-  </a>
+    <span class="text-sm text-muted">© {year} Elias Antoun</span>
+    <a
+      href="https://github.com/elias-antoun/elias-antoun.github.io"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-sm text-muted transition-colors duration-150 hover:text-accent"
+    >
+      Source on GitHub
+    </a>
+  </div>
 </footer>

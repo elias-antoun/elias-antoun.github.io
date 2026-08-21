@@ -27,14 +27,15 @@ function tokenValues(pattern: RegExp): Record<string, string> {
 }
 
 const REQUIRED = [
-  '--ink',
-  '--ink-soft',
-  '--on-signal',
-  '--paper',
+  '--accent',
+  '--accent-soft',
+  '--bg',
+  '--bg-alt',
+  '--border',
+  '--muted',
+  '--on-accent',
   '--panel',
-  '--raw',
-  '--rule',
-  '--signal',
+  '--text',
 ];
 
 describe('design tokens', () => {
@@ -63,12 +64,6 @@ describe('design tokens', () => {
   it('keeps the attribute and media dark palettes identical', () => {
     expect(tokenValues(MEDIA_BLOCK)).toEqual(tokenValues(DARK_BLOCK));
   });
-
-  it('declares three distinct type roles', () => {
-    expect(css).toMatch(/--font-display:/);
-    expect(css).toMatch(/--font-body:/);
-    expect(css).toMatch(/--font-mono:/);
-  });
 });
 
 // WCAG 2.1 relative luminance and contrast ratio.
@@ -88,28 +83,6 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-/** Hue in degrees, 0–360. */
-function hue(hex: string): number {
-  const [r, g, b] = hex
-    .replace('#', '')
-    .match(/\w\w/g)!
-    .map((h) => parseInt(h, 16) / 255);
-  const max = Math.max(r, g, b);
-  const delta = max - Math.min(r, g, b);
-  if (delta === 0) return 0;
-  let h: number;
-  if (max === r) h = ((g - b) / delta) % 6;
-  else if (max === g) h = (b - r) / delta + 2;
-  else h = (r - g) / delta + 4;
-  return ((h * 60) + 360) % 360;
-}
-
-/** Shortest angular distance between two hues, 0–180 degrees. */
-function hueDistance(a: string, b: string): number {
-  const diff = Math.abs(hue(a) - hue(b)) % 360;
-  return diff > 180 ? 360 - diff : diff;
-}
-
 describe('WCAG AA contrast in both palettes', () => {
   const palettes: Array<[string, Record<string, string>]> = [
     ['light', tokenValues(LIGHT_BLOCK)],
@@ -118,16 +91,19 @@ describe('WCAG AA contrast in both palettes', () => {
 
   // Every foreground/background pairing the components actually produce.
   const PAIRS: Array<[string, string]> = [
-    ['--ink', '--paper'],
-    ['--ink', '--panel'],
-    ['--ink-soft', '--paper'],
-    ['--ink-soft', '--panel'],
-    ['--signal', '--paper'],
-    ['--signal', '--panel'],
-    ['--raw', '--paper'],
-    ['--raw', '--panel'],
-    // Buttons and the skip link paint text on a signal fill.
-    ['--on-signal', '--signal'],
+    ['--text', '--bg'],
+    ['--text', '--bg-alt'],
+    ['--text', '--panel'],
+    ['--muted', '--bg'],
+    ['--muted', '--bg-alt'],
+    ['--muted', '--panel'],
+    ['--accent', '--bg'],
+    ['--accent', '--bg-alt'],
+    ['--accent', '--panel'],
+    // Chips print accent text on an accent-soft fill.
+    ['--accent', '--accent-soft'],
+    // Primary buttons and the skip link print on an accent fill.
+    ['--on-accent', '--accent'],
   ];
 
   for (const [name, palette] of palettes) {
@@ -140,38 +116,22 @@ describe('WCAG AA contrast in both palettes', () => {
     }
   }
 
-  it('meets WCAG 1.4.11 non-text contrast for timeline track bars', () => {
-    // The bars encode role duration, so they are meaningful graphics and need
-    // 3:1 against the page — a hairline border does not qualify.
+  it('keeps card borders visible against the page', () => {
+    // Borders separate a card from the page. They are paired with a shadow
+    // rather than carrying meaning alone, so they do not need the full 3:1 of
+    // WCAG 1.4.11 — but below roughly 1.4 the cards wash out entirely, which
+    // is what made the earlier pass look unfinished.
     for (const [name, palette] of palettes) {
-      expect(palette['--track'], `${name} palette missing --track`).toBeDefined();
-      expect(contrast(palette['--track'], palette['--paper']), name).toBeGreaterThanOrEqual(3);
+      expect(
+        contrast(palette['--border'], palette['--bg']),
+        `${name} border on bg`
+      ).toBeGreaterThanOrEqual(1.4);
     }
   });
 
-  it('keeps track bars quieter than the primary signal fill', () => {
-    // Secondary roles must be perceivable without competing with internships.
-    for (const [name, palette] of palettes) {
-      const track = contrast(palette['--track'], palette['--paper']);
-      const signal = contrast(palette['--signal'], palette['--paper']);
-      expect(track, name).toBeLessThan(signal);
-    }
-  });
-
-  it('flags plain white on the signal fill as insufficient in dark mode', () => {
-    // Documents why --on-signal exists rather than a hardcoded white.
+  it('flags plain white on the accent as insufficient in dark mode', () => {
+    // Documents why --on-accent exists rather than a hardcoded white.
     const dark = tokenValues(DARK_BLOCK);
-    expect(contrast('#ffffff', dark['--signal'])).toBeLessThan(4.5);
-  });
-
-  it('separates raw and signal by hue, not by luminance', () => {
-    // They encode opposite meanings and sit side by side, so they must differ
-    // strongly in hue. Luminance is deliberately close so neither dominates —
-    // which is why the traces are ALSO differentiated by line weight and dash
-    // pattern in SignalTrace.astro. Colour alone never carries the meaning.
-    for (const [name, palette] of palettes) {
-      expect(palette['--raw'], name).not.toBe(palette['--signal']);
-      expect(hueDistance(palette['--raw'], palette['--signal']), name).toBeGreaterThan(90);
-    }
+    expect(contrast('#ffffff', dark['--accent'])).toBeLessThan(4.5);
   });
 });

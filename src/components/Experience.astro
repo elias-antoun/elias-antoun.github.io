@@ -1,132 +1,32 @@
 ---
 import Section from './Section.astro';
 import { experience, universityRoles } from '../data/site';
-import { spanToBar, axisTicks, pointToPercent, DEGREE_AXIS, NOW } from '../lib/timeline';
-
-const ticks = axisTicks();
-const nowAt = pointToPercent(NOW);
-
-// Internships first (short, intense, overlapping), then the long-running
-// university commitments underneath. Duration is drawn to scale; the two are
-// separated by weight, not by hiding the difference.
-const tracks = [
-  ...experience.map((role) => ({
-    title: role.title,
-    org: role.org,
-    period: role.period,
-    bar: spanToBar(role.span),
-    kind: 'primary' as const,
-  })),
-  ...universityRoles.map((role) => ({
-    title: role.title,
-    org: role.org,
-    period: role.period,
-    bar: spanToBar(role.span),
-    kind: 'secondary' as const,
-  })),
-];
-
-const axisLabel = `${DEGREE_AXIS.from < 2024 ? 2023 : DEGREE_AXIS.from} — 2027`;
 ---
 
-<Section id="experience" heading="Experience" meta={axisLabel}>
-  <!-- Time axis. The point of drawing it: you can see the two 2026
-       internships overlap, and see them sitting on top of teaching work that
-       has run continuously since 2023. A list of dates hides both facts. -->
-  <div class="relative">
-    <div class="relative ml-0 sm:ml-44">
-      <!-- Year gridlines -->
-      <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-        {
-          ticks.map((year) => (
-            <div
-              class="absolute top-0 bottom-6 w-px bg-rule"
-              style={`left: ${pointToPercent(year)}%`}
-            />
-          ))
-        }
-        <div
-          class="absolute top-0 bottom-6 w-px bg-signal/40"
-          style={`left: ${nowAt}%`}
-        />
-      </div>
-
-      <ul class="relative space-y-3">
-        {
-          tracks.map((track) => (
-            <li class="sm:grid sm:grid-cols-[1fr] sm:items-center">
-              <div class="mb-1 flex flex-wrap items-baseline gap-x-2 sm:hidden">
-                <span class="text-sm font-medium">{track.title}</span>
-                <span class="readout">{track.period}</span>
-              </div>
-              <div class="relative h-6">
-                <div
-                  class:list={[
-                    'absolute top-1/2 -translate-y-1/2 rounded-sm',
-                    track.kind === 'primary' ? 'h-5 bg-signal' : 'h-2 bg-track',
-                  ]}
-                  style={`left: ${track.bar.left}%; width: ${track.bar.width}%; min-width: 6px`}
-                  title={`${track.title} · ${track.period}`}
-                />
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-
-      <!-- Axis labels -->
-      <div class="relative mt-1 h-4" aria-hidden="true">
-        {
-          ticks.map((year) => (
-            <span
-              class="readout absolute -translate-x-1/2"
-              style={`left: ${pointToPercent(year)}%`}
-            >
-              {year}
-            </span>
-          ))
-        }
-      </div>
-    </div>
-
-    <!-- Row labels, desktop only; on mobile they sit above each bar. -->
-    <ul class="pointer-events-none absolute inset-y-0 left-0 hidden w-44 space-y-3 pr-4 sm:block">
-      {
-        tracks.map((track) => (
-          <li class="flex h-6 items-center">
-            <span
-              class:list={[
-                'truncate text-xs',
-                track.kind === 'primary' ? 'font-semibold text-ink' : 'text-ink-soft',
-              ]}
-            >
-              {track.title}
-            </span>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-
-  <!-- Detail for the two internships. -->
-  <div class="mt-14 space-y-12">
+<Section
+  id="experience"
+  eyebrow="Career"
+  heading="Experience"
+  lede="Two completed 2026 internships, alongside teaching and society work running since 2023."
+>
+  <div class="space-y-6">
     {
       experience.map((role) => (
-        <article>
+        <article class="card p-6">
           <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 class="display text-base sm:text-lg">
+            <h3 class="text-lg font-semibold tracking-tight">
               {role.title}
-              <span class="font-body font-normal text-ink-soft"> — {role.org}</span>
+              <span class="font-normal text-muted"> · {role.org}</span>
             </h3>
-            <span class="readout">{role.period}</span>
+            <span class="font-mono text-xs text-muted">{role.period}</span>
           </div>
 
           {role.metrics.length > 0 && (
-            <dl class="mt-4 grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-rule bg-rule sm:grid-cols-3">
+            <dl class="mt-5 grid grid-cols-1 gap-4 rounded-lg bg-bg-alt p-4 sm:grid-cols-3">
               {role.metrics.map((metric) => (
-                <div class="bg-panel px-4 py-3">
-                  <dt class="font-mono text-sm font-medium text-signal">{metric.value}</dt>
-                  <dd class="mt-1 text-xs text-ink-soft">{metric.label}</dd>
+                <div>
+                  <dt class="font-mono text-base font-medium text-accent">{metric.value}</dt>
+                  <dd class="mt-1 text-xs text-muted">{metric.label}</dd>
                 </div>
               ))}
             </dl>
@@ -134,8 +34,9 @@ const axisLabel = `${DEGREE_AXIS.from < 2024 ? 2023 : DEGREE_AXIS.from} — 2027
 
           <ul class="mt-5 space-y-2.5">
             {role.bullets.map((bullet) => (
-              <li class="pl-4 text-sm leading-relaxed text-ink-soft [text-indent:-1rem]">
-                <span class="text-rule">—</span> {bullet}
+              <li class="flex gap-3 text-sm leading-relaxed text-muted">
+                <span aria-hidden="true" class="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
+                <span>{bullet}</span>
               </li>
             ))}
           </ul>
@@ -144,20 +45,16 @@ const axisLabel = `${DEGREE_AXIS.from < 2024 ? 2023 : DEGREE_AXIS.from} — 2027
     }
   </div>
 
-  <div class="mt-14 border-t border-rule pt-6">
-    <h3 class="readout mb-4">Alongside · university</h3>
-    <div class="space-y-5">
+  <div class="mt-10">
+    <h3 class="text-sm font-semibold tracking-tight">Alongside</h3>
+    <div class="mt-4 grid gap-4 sm:grid-cols-3">
       {
         universityRoles.map((role) => (
-          <article class="sm:grid sm:grid-cols-[11rem_1fr] sm:gap-6">
-            <span class="readout sm:pt-1">{role.period}</span>
-            <div class="mt-1 sm:mt-0">
-              <h4 class="text-sm font-medium">
-                {role.title}
-                <span class="font-normal text-ink-soft"> — {role.org}</span>
-              </h4>
-              <p class="mt-1 text-sm text-ink-soft">{role.summary}</p>
-            </div>
+          <article class="card p-5">
+            <span class="font-mono text-xs text-muted">{role.period}</span>
+            <h4 class="mt-2 text-sm font-semibold">{role.title}</h4>
+            <p class="mt-0.5 text-xs text-muted">{role.org}</p>
+            <p class="mt-3 text-sm leading-relaxed text-muted">{role.summary}</p>
           </article>
         ))
       }

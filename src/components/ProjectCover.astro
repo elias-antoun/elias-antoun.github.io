@@ -1,0 +1,296 @@
+---
+/**
+ * Cover art for a project card.
+ *
+ * These are placeholders standing in for real screenshots, but they are drawn
+ * from each project's actual subject rather than being generic shapes — a
+ * training curve for the CNN, a node graph for the ROS package, and so on.
+ * Replace a project's cover by adding `cover` + `coverAlt` to its index.md;
+ * ProjectCard prefers a real image whenever one exists.
+ *
+ * Inline SVG rather than image files so they follow the theme tokens and stay
+ * crisp at any size.
+ */
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+
+const VIEWBOX = '0 0 320 180';
+---
+
+<div class="w-full bg-bg-alt" aria-hidden="true">
+  {
+    slug === 'inmind-cnn' && (
+      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
+        <g stroke="var(--border)" stroke-width="1">
+          <line x1="40" y1="150" x2="290" y2="150" />
+          <line x1="40" y1="30" x2="40" y2="150" />
+          <line x1="40" y1="60" x2="290" y2="60" stroke-dasharray="3 4" />
+          <line x1="40" y1="105" x2="290" y2="105" stroke-dasharray="3 4" />
+        </g>
+        <path
+          d="M40 132 C 80 128, 96 100, 120 84 S 170 62, 200 54 T 290 46"
+          fill="none"
+          stroke="var(--accent)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <circle cx="40" cy="132" r="3.5" fill="var(--accent)" />
+        <circle cx="290" cy="46" r="3.5" fill="var(--accent)" />
+        <text x="48" y="126" font-family="var(--font-mono)" font-size="10" fill="var(--muted)">
+          64.97%
+        </text>
+        <text
+          x="282"
+          y="38"
+          text-anchor="end"
+          font-family="var(--font-mono)"
+          font-size="11"
+          fill="var(--accent)"
+        >
+          98.24%
+        </text>
+        <text x="40" y="170" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">
+          epochs
+        </text>
+      </svg>
+    )
+  }
+
+  {
+    slug === 'academy-object-detection' && (
+      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
+        <g fill="var(--border)" opacity="0.55">
+          <rect x="30" y="96" width="52" height="44" rx="2" />
+          <rect x="96" y="112" width="40" height="28" rx="2" />
+          <rect x="196" y="84" width="62" height="56" rx="2" />
+          <rect x="150" y="120" width="30" height="20" rx="2" />
+        </g>
+        <line x1="20" y1="140" x2="300" y2="140" stroke="var(--border)" stroke-width="1.5" />
+        <g fill="none" stroke="var(--accent)" stroke-width="2">
+          <rect x="26" y="92" width="60" height="52" rx="2" />
+          <rect x="192" y="80" width="70" height="64" rx="2" />
+          <rect x="92" y="108" width="48" height="36" rx="2" />
+        </g>
+        <g font-family="var(--font-mono)" font-size="8" fill="var(--on-accent)">
+          <rect x="26" y="82" width="34" height="11" fill="var(--accent)" rx="2" />
+          <text x="29" y="90.5">0.94</text>
+          <rect x="192" y="70" width="34" height="11" fill="var(--accent)" rx="2" />
+          <text x="195" y="78.5">0.89</text>
+        </g>
+        <text x="20" y="34" font-family="var(--font-mono)" font-size="10" fill="var(--muted)">
+          LOCO · mAP@0.5
+        </text>
+      </svg>
+    )
+  }
+
+  {
+    slug === 'multi-sensor-imu-pipeline' && (
+      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
+        <path
+          d="M8 62 l6-9 5 15 6-16 5 12 6-14 5 16 6-11 5 9"
+          fill="none"
+          stroke="var(--muted)"
+          stroke-width="1.5"
+        />
+        <path
+          d="M262 62 q 14 -6 28 0 t 22 0"
+          fill="none"
+          stroke="var(--accent)"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+        <g fill="var(--panel)" stroke="var(--border)" stroke-width="1.5">
+          <rect x="62" y="42" width="60" height="40" rx="4" />
+          <rect x="132" y="42" width="60" height="40" rx="4" />
+          <rect x="202" y="42" width="52" height="40" rx="4" />
+        </g>
+        <g
+          font-family="var(--font-mono)"
+          font-size="8"
+          fill="var(--text)"
+          text-anchor="middle"
+        >
+          <text x="92" y="66">driver</text>
+          <text x="162" y="66">filter</text>
+          <text x="228" y="66">logger</text>
+        </g>
+        <g stroke="var(--accent)" stroke-width="1.5" fill="none">
+          <path d="M122 62 h10" marker-end="url(#imu-arrow)" />
+          <path d="M192 62 h10" marker-end="url(#imu-arrow)" />
+        </g>
+        <defs>
+          <marker id="imu-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0 0 L6 3 L0 6 z" fill="var(--accent)" />
+          </marker>
+        </defs>
+        <g font-family="var(--font-mono)" font-size="8" fill="var(--muted)">
+          <text x="62" y="104">/imu/raw</text>
+          <text x="176" y="104">/imu/filtered</text>
+          <text x="62" y="34">ROS 2 Jazzy</text>
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    slug === 'robot-perception-manager' && (
+      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
+        <g fill="var(--panel)" stroke="var(--border)" stroke-width="1.5">
+          <rect x="24" y="52" width="96" height="38" rx="19" />
+          <rect x="196" y="52" width="100" height="38" rx="19" />
+        </g>
+        <g
+          font-family="var(--font-mono)"
+          font-size="8"
+          fill="var(--text)"
+          text-anchor="middle"
+        >
+          <text x="72" y="75">perception</text>
+          <text x="246" y="75">tf_broadcaster</text>
+        </g>
+        <path
+          d="M120 71 h68"
+          stroke="var(--accent)"
+          stroke-width="1.5"
+          marker-end="url(#rpm-arrow)"
+        />
+        <text
+          x="154"
+          y="64"
+          font-family="var(--font-mono)"
+          font-size="8"
+          fill="var(--muted)"
+          text-anchor="middle"
+        >
+          /tf
+        </text>
+        <defs>
+          <marker id="rpm-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0 0 L6 3 L0 6 z" fill="var(--accent)" />
+          </marker>
+        </defs>
+        <g stroke-width="2" stroke-linecap="round">
+          <line x1="150" y1="140" x2="190" y2="140" stroke="var(--accent)" />
+          <line x1="150" y1="140" x2="150" y2="108" stroke="var(--muted)" />
+        </g>
+        <circle cx="150" cy="140" r="3" fill="var(--text)" />
+        <g font-family="var(--font-mono)" font-size="8" fill="var(--muted)">
+          <text x="194" y="143">x</text>
+          <text x="143" y="104">z</text>
+          <text x="24" y="34">action · service · tf2</text>
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    slug === 'devpulse-agentic-workspace' && (
+      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
+        <g fill="var(--bg)" stroke="var(--border)" stroke-width="1.5">
+          <rect x="24" y="40" width="84" height="112" rx="6" />
+          <rect x="118" y="40" width="84" height="112" rx="6" />
+          <rect x="212" y="40" width="84" height="112" rx="6" />
+        </g>
+        <g fill="var(--panel)" stroke="var(--border)" stroke-width="1">
+          <rect x="32" y="52" width="68" height="22" rx="4" />
+          <rect x="32" y="80" width="68" height="22" rx="4" />
+          <rect x="126" y="52" width="68" height="22" rx="4" />
+        </g>
+        <rect x="220" y="52" width="68" height="22" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1" />
+        <g fill="var(--border)">
+          <rect x="38" y="59" width="34" height="3" rx="1.5" />
+          <rect x="38" y="87" width="44" height="3" rx="1.5" />
+          <rect x="132" y="59" width="38" height="3" rx="1.5" />
+        </g>
+        <rect x="226" y="59" width="40" height="3" rx="1.5" fill="var(--accent)" />
+        <g font-family="var(--font-mono)" font-size="8" fill="var(--muted)">
+          <text x="24" y="34">todo</text>
+          <text x="118" y="34">doing</text>
+          <text x="212" y="34">synced</text>
+        </g>
+      </svg>
+    )
+  }
+
+  {
+    slug === 'hand-gesture-car' && (
+      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
+        <g stroke="var(--accent)" stroke-width="1.5" fill="none" stroke-linecap="round">
+          <path d="M58 140 L58 96 M58 112 L40 88 M58 108 L52 76 M58 106 L68 74 M58 110 L82 86" />
+        </g>
+        <g fill="var(--accent)">
+          <circle cx="58" cy="140" r="3.5" />
+          <circle cx="40" cy="88" r="3" />
+          <circle cx="52" cy="76" r="3" />
+          <circle cx="68" cy="74" r="3" />
+          <circle cx="82" cy="86" r="3" />
+          <circle cx="58" cy="112" r="2.5" />
+        </g>
+        <g stroke="var(--muted)" stroke-width="1.5" fill="none" stroke-linecap="round">
+          <path d="M124 96 a 26 26 0 0 1 22 0" />
+          <path d="M118 108 a 40 40 0 0 1 34 0" />
+        </g>
+        <g fill="var(--panel)" stroke="var(--border)" stroke-width="1.5">
+          <rect x="196" y="98" width="86" height="30" rx="5" />
+        </g>
+        <rect x="212" y="86" width="54" height="16" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5" />
+        <g fill="var(--text)">
+          <circle cx="214" cy="132" r="8" />
+          <circle cx="264" cy="132" r="8" />
+        </g>
+        <g fill="var(--bg)">
+          <circle cx="214" cy="132" r="3" />
+          <circle cx="264" cy="132" r="3" />
+        </g>
+        <text x="24" y="34" font-family="var(--font-mono)" font-size="10" fill="var(--muted)">
+          mediapipe → nodemcu
+        </text>
+      </svg>
+    )
+  }
+
+  {
+    slug === 'license-plate-recognition' && (
+      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
+        <rect
+          x="46"
+          y="62"
+          width="228"
+          height="66"
+          rx="6"
+          fill="var(--panel)"
+          stroke="var(--border)"
+          stroke-width="1.5"
+        />
+        <g fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4">
+          <rect x="38" y="54" width="244" height="82" rx="8" />
+        </g>
+        <g fill="none" stroke="var(--accent)" stroke-width="1.2" opacity="0.8">
+          <rect x="66" y="76" width="26" height="38" rx="2" />
+          <rect x="100" y="76" width="26" height="38" rx="2" />
+          <rect x="134" y="76" width="26" height="38" rx="2" />
+          <rect x="176" y="76" width="26" height="38" rx="2" />
+          <rect x="210" y="76" width="26" height="38" rx="2" />
+        </g>
+        <g
+          font-family="var(--font-mono)"
+          font-size="22"
+          fill="var(--text)"
+          text-anchor="middle"
+        >
+          <text x="79" y="106">4</text>
+          <text x="113" y="106">7</text>
+          <text x="147" y="106">2</text>
+          <text x="189" y="106">B</text>
+          <text x="223" y="106">K</text>
+        </g>
+        <text x="38" y="42" font-family="var(--font-mono)" font-size="10" fill="var(--muted)">
+          detect → segment → correlate
+        </text>
+      </svg>
+    )
+  }
+</div>

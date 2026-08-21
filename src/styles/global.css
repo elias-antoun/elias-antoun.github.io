@@ -1,116 +1,139 @@
 @import 'tailwindcss';
 
-/* Display: Archivo variable — has a width axis (62–125%), which is what makes
-   the name read as engineered lettering rather than a generic grotesk. */
-@import '@fontsource-variable/archivo/wdth.css';
-
-/* Body */
 @import '@fontsource/instrument-sans/latin-400.css';
 @import '@fontsource/instrument-sans/latin-500.css';
 @import '@fontsource/instrument-sans/latin-600.css';
+@import '@fontsource/instrument-sans/latin-700.css';
 
-/* Data, labels, telemetry readouts */
 @import '@fontsource/ibm-plex-mono/latin-400.css';
 @import '@fontsource/ibm-plex-mono/latin-500.css';
 
 /* Light palette — the default.
-   --signal and --raw are not brand paint: they encode the page's thesis.
-   Warm --raw always means unfiltered/noisy input; cool --signal always means
-   the processed result. Nothing else may use them decoratively.
-   --on-signal is the text colour for use ON a signal fill; white fails AA
-   against the dark-mode signal, which is why this token exists.
-   tests/tokens.test.ts enforces 4.5:1 across every pair below. */
+   --accent-soft is a tinted fill for chips and metric pills; it is a
+   background only, never a text colour.
+   --on-accent is the text colour for use ON an accent fill: white fails AA
+   against the lighter dark-mode accent, which is why the token exists.
+   tests/tokens.test.ts enforces every pairing below. */
 :root {
-  --paper: #f3f6f7;
+  --bg: #ffffff;
+  --bg-alt: #f6f8fb;
   --panel: #ffffff;
-  --rule: #d5dee1;
-  --ink: #0e1518;
-  --ink-soft: #566368;
-  --signal: #00636d;
-  --raw: #a94e17;
-  --on-signal: #ffffff;
-  /* Timeline bars carry duration information, so they are graphics that must
-     meet WCAG 1.4.11 non-text contrast (3:1) — not hairlines. */
-  --track: #7d898e;
+  --border: #ced6e4;
+  --text: #16202e;
+  --muted: #576375;
+  --accent: #2158d0;
+  --accent-soft: #e9f0ff;
+  --on-accent: #ffffff;
 }
 
 /* An explicit dark choice wins in both directions. */
 [data-theme='dark'] {
-  --paper: #0b1113;
-  --panel: #111a1d;
-  --rule: #222d31;
-  --ink: #e6edef;
-  --ink-soft: #90a0a5;
-  --signal: #45cfdc;
-  --raw: #efa05c;
-  --on-signal: #05171a;
-  --track: #5c686d;
+  --bg: #0d1117;
+  --bg-alt: #111823;
+  --panel: #141b26;
+  --border: #253044;
+  --text: #e8edf5;
+  --muted: #98a4b7;
+  --accent: #7fb0ff;
+  --accent-soft: #16233a;
+  --on-accent: #0a1220;
 }
 
 /* System preference, unless the user explicitly chose light. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --paper: #0b1113;
-    --panel: #111a1d;
-    --rule: #222d31;
-    --ink: #e6edef;
-    --ink-soft: #90a0a5;
-    --signal: #45cfdc;
-    --raw: #efa05c;
-    --on-signal: #05171a;
-    --track: #5c686d;
+    --bg: #0d1117;
+    --bg-alt: #111823;
+    --panel: #141b26;
+    --border: #253044;
+    --text: #e8edf5;
+    --muted: #98a4b7;
+    --accent: #7fb0ff;
+    --accent-soft: #16233a;
+    --on-accent: #0a1220;
   }
 }
 
 @theme inline {
-  --color-paper: var(--paper);
+  --color-bg: var(--bg);
+  --color-bg-alt: var(--bg-alt);
   --color-panel: var(--panel);
-  --color-rule: var(--rule);
-  --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
-  --color-signal: var(--signal);
-  --color-raw: var(--raw);
-  --color-on-signal: var(--on-signal);
-  --color-track: var(--track);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
 
-  --font-display: 'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, sans-serif;
-  --font-body: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+
+  --radius-card: 12px;
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 4.5rem;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background-color: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Display face, set wide and tight — the instrument-panel voice. */
-.display {
-  font-family: var(--font-display);
-  font-stretch: 112%;
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 0.95;
-}
-
-/* Small mono label used for units, counts and axis ticks. */
-.readout {
+/* Small uppercase label sitting above a section heading. */
+.eyebrow {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
-  letter-spacing: 0.08em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--accent);
+}
+
+/* Shared surface for experience, project and education cards. */
+.card {
+  background-color: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 2px rgb(22 32 46 / 0.05);
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.card-hover:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 8px 24px rgb(22 32 46 / 0.09);
+  transform: translateY(-2px);
+}
+
+[data-theme='dark'] .card {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+}
+
+[data-theme='dark'] .card-hover:hover {
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+}
+
+/* Monospace chip used for tech tags and dates. */
+.chip {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  background-color: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  line-height: 1.4;
 }
 
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -123,6 +146,8 @@ body {
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+  }
+  .card-hover:hover {
+    transform: none;
   }
 }
