@@ -2,14 +2,14 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="border-t border-border py-8">
-  <p class="font-mono text-xs text-muted">
-    &copy; {year} Elias Antoun &middot;{' '}
-    <a
-      href="https://github.com/elias-antoun/elias-antoun.github.io"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="hover:text-accent">source</a
-    >
-  </p>
+<footer class="flex flex-wrap items-baseline justify-between gap-3 border-t border-rule py-8">
+  <span class="readout">Elias Antoun · {year}</span>
+  <a
+    href="https://github.com/elias-antoun/elias-antoun.github.io"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="readout underline decoration-rule underline-offset-4 hover:text-signal hover:decoration-signal"
+  >
+    Source
+  </a>
 </footer>

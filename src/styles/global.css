@@ -1,77 +1,117 @@
 @import 'tailwindcss';
 
-/* Latin subset only — the full imports pull cyrillic, greek and vietnamese too. */
-@import '@fontsource/ibm-plex-sans/latin-400.css';
-@import '@fontsource/ibm-plex-sans/latin-600.css';
+/* Display: Archivo variable — has a width axis (62–125%), which is what makes
+   the name read as engineered lettering rather than a generic grotesk. */
+@import '@fontsource-variable/archivo/wdth.css';
+
+/* Body */
+@import '@fontsource/instrument-sans/latin-400.css';
+@import '@fontsource/instrument-sans/latin-500.css';
+@import '@fontsource/instrument-sans/latin-600.css';
+
+/* Data, labels, telemetry readouts */
 @import '@fontsource/ibm-plex-mono/latin-400.css';
 @import '@fontsource/ibm-plex-mono/latin-500.css';
 
 /* Light palette — the default.
-   --accent-contrast is the text colour to use ON an accent background. It is
-   not decorative: the dark accent is a light blue, so white text on it scores
-   2.69:1 and fails WCAG AA. This token keeps accent buttons legible in both
-   themes. See tests/tokens.test.ts, which enforces the ratios. */
+   --signal and --raw are not brand paint: they encode the page's thesis.
+   Warm --raw always means unfiltered/noisy input; cool --signal always means
+   the processed result. Nothing else may use them decoratively.
+   --on-signal is the text colour for use ON a signal fill; white fails AA
+   against the dark-mode signal, which is why this token exists.
+   tests/tokens.test.ts enforces 4.5:1 across every pair below. */
 :root {
-  --bg: #fcfcfb;
-  --surface: #ffffff;
-  --border: #e4e4e1;
-  --text: #14161a;
-  --muted: #5f646e;
-  --accent: #1d4ed8;
-  --accent-contrast: #ffffff;
+  --paper: #f3f6f7;
+  --panel: #ffffff;
+  --rule: #d5dee1;
+  --ink: #0e1518;
+  --ink-soft: #566368;
+  --signal: #00636d;
+  --raw: #a94e17;
+  --on-signal: #ffffff;
+  /* Timeline bars carry duration information, so they are graphics that must
+     meet WCAG 1.4.11 non-text contrast (3:1) — not hairlines. */
+  --track: #7d898e;
 }
 
 /* An explicit dark choice wins in both directions. */
 [data-theme='dark'] {
-  --bg: #0e1116;
-  --surface: #161a21;
-  --border: #262b34;
-  --text: #e8eaed;
-  --muted: #9ba1ac;
-  --accent: #6e9bff;
-  --accent-contrast: #0e1116;
+  --paper: #0b1113;
+  --panel: #111a1d;
+  --rule: #222d31;
+  --ink: #e6edef;
+  --ink-soft: #90a0a5;
+  --signal: #45cfdc;
+  --raw: #efa05c;
+  --on-signal: #05171a;
+  --track: #5c686d;
 }
 
 /* System preference, unless the user explicitly chose light. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0e1116;
-    --surface: #161a21;
-    --border: #262b34;
-    --text: #e8eaed;
-    --muted: #9ba1ac;
-    --accent: #6e9bff;
-    --accent-contrast: #0e1116;
+    --paper: #0b1113;
+    --panel: #111a1d;
+    --rule: #222d31;
+    --ink: #e6edef;
+    --ink-soft: #90a0a5;
+    --signal: #45cfdc;
+    --raw: #efa05c;
+    --on-signal: #05171a;
+    --track: #5c686d;
   }
 }
 
 @theme inline {
-  --color-bg: var(--bg);
-  --color-surface: var(--surface);
-  --color-border: var(--border);
-  --color-text: var(--text);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-contrast: var(--accent-contrast);
-  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --color-paper: var(--paper);
+  --color-panel: var(--panel);
+  --color-rule: var(--rule);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-signal: var(--signal);
+  --color-raw: var(--raw);
+  --color-on-signal: var(--on-signal);
+  --color-track: var(--track);
+
+  --font-display: 'Archivo Variable', 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 4.5rem;
 }
 
 body {
-  background-color: var(--bg);
-  color: var(--text);
-  font-family: var(--font-sans);
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display face, set wide and tight — the instrument-panel voice. */
+.display {
+  font-family: var(--font-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 0.95;
+}
+
+/* Small mono label used for units, counts and axis ticks. */
+.readout {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -83,5 +123,6 @@ body {
   *::after {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }

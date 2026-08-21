@@ -1,32 +1,41 @@
 ---
+import SignalTrace from './SignalTrace.astro';
 import Button from './ui/Button.astro';
-import StatTile from './ui/StatTile.astro';
 import IconLink from './ui/IconLink.astro';
-import { profile, stats, socials } from '../data/site';
+import { profile, socials, stats } from '../data/site';
 import { obfuscateEmail } from '../lib/email';
 
 const email = obfuscateEmail(socials[0].handle, 'outlook.com');
 const externalSocials = socials.filter((s) => s.href.startsWith('http'));
+
+// Credentials as one instrument readout rather than three stat tiles.
+const readout = stats.map((s) => `${s.value} ${s.label}`).join('  ·  ');
 ---
 
-<div class="py-16">
-  <p class="font-mono text-xs text-muted">{profile.availability}</p>
+<div class="pt-10 pb-14 sm:pt-14 sm:pb-20">
+  <p class="readout">{profile.availability}</p>
 
-  <h1 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">{profile.name}</h1>
-  <p class="mt-2 font-mono text-sm text-accent">{profile.title}</p>
+  <!-- The space before the span is load-bearing: without it the accessible
+       name and any copy-paste collapse to "EliasAntoun". -->
+  <h1 class="display mt-5 text-[clamp(2.6rem,9vw,5.25rem)]">
+    Elias <span class="block">Antoun</span>
+  </h1>
 
-  <p class="mt-6 max-w-2xl text-muted">{profile.positioning}</p>
+  <p class="mt-5 max-w-xl text-[1.0625rem] leading-relaxed text-ink-soft">
+    {profile.positioning}
+  </p>
 
-  <div class="mt-8 flex flex-wrap gap-6">
-    {stats.map((stat) => <StatTile value={stat.value} label={stat.label} />)}
+  <p class="readout mt-6 normal-case tracking-normal">{readout}</p>
+
+  <div class="mt-10">
+    <SignalTrace />
   </div>
 
-  <div class="mt-8 flex flex-wrap items-center gap-3">
+  <div class="mt-9 flex flex-wrap items-center gap-x-3 gap-y-3">
     <Button href={email.href}>Get in touch</Button>
     <Button href="/Elias_Antoun_Resume.pdf" variant="secondary" download>Download CV</Button>
-  </div>
-
-  <div class="mt-6 flex gap-4">
-    {externalSocials.map((s) => <IconLink href={s.href} label={s.label}>{s.label}</IconLink>)}
+    <span class="ml-auto flex gap-4">
+      {externalSocials.map((s) => <IconLink href={s.href} label={s.label}>{s.label}</IconLink>)}
+    </span>
   </div>
 </div>

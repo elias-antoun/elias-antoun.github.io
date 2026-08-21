@@ -1,25 +1,20 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
-import { nav, profile } from '../data/site';
-
-const initials = profile.name
-  .split(' ')
-  .map((part) => part[0])
-  .join('');
+import { nav } from '../data/site';
 ---
 
 <header
-  class="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-bg py-3"
+  class="sticky top-0 z-10 -mx-6 flex items-center justify-between gap-4 border-b border-rule bg-paper px-6 py-3"
 >
-  <a href="#main" class="font-mono text-sm font-medium tracking-tight">{initials}</a>
+  <a href="#main" class="display text-sm" style="font-stretch: 125%">EA</a>
 
-  <nav aria-label="Sections" class="hidden gap-4 sm:flex">
+  <nav aria-label="Sections" class="hidden gap-5 sm:flex">
     {
       nav.map((item) => (
         <a
           href={`#${item.id}`}
           data-nav-link={item.id}
-          class="text-sm text-muted transition-colors duration-150 hover:text-text aria-[current=true]:text-accent"
+          class="font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ink-soft transition-colors duration-150 hover:text-ink aria-[current=true]:text-signal"
         >
           {item.label}
         </a>
@@ -27,13 +22,13 @@ const initials = profile.name
     }
   </nav>
 
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-3">
     <a
       href="/Elias_Antoun_Resume.pdf"
       download
-      class="rounded border border-border px-2 py-1 font-mono text-xs transition-colors duration-150 hover:border-accent"
+      class="font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-ink underline decoration-rule underline-offset-4 transition-colors duration-150 hover:text-signal hover:decoration-signal"
     >
-      CV &darr;
+      CV
     </a>
     <ThemeToggle />
   </div>
@@ -53,15 +48,18 @@ const initials = profile.name
     .filter((el): el is HTMLElement => el !== null);
 
   if (sections.length > 0 && 'IntersectionObserver' in window) {
+    // A generous band: sections are tall, and a narrow band leaves the nav
+    // unmarked whenever a section boundary sits outside it.
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          byId.forEach((link) => link.removeAttribute('aria-current'));
-          byId.get(entry.target.id)?.setAttribute('aria-current', 'true');
-        }
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length === 0) return;
+        byId.forEach((link) => link.removeAttribute('aria-current'));
+        byId.get(visible[0].target.id)?.setAttribute('aria-current', 'true');
       },
-      { rootMargin: '-20% 0px -70% 0px' }
+      { rootMargin: '-72px 0px -55% 0px', threshold: 0 }
     );
     sections.forEach((section) => observer.observe(section));
   }

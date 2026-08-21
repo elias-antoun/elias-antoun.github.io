@@ -6,29 +6,35 @@ import { partitionProjects } from '../lib/projects';
 
 const entries = await getCollection('projects');
 const { featured, compact } = partitionProjects(entries);
+
+// The readout counts real things rather than numbering the section.
+const publicRepos = entries.filter((e) => e.data.links?.repo).length;
+const meta = `${entries.length} projects · ${publicRepos} public repos`;
 ---
 
-<Section id="projects" index="04" heading="Projects">
-  <div class="grid gap-6 sm:grid-cols-2">
+<Section id="projects" heading="Projects" meta={meta}>
+  <div class="grid gap-x-10 gap-y-9 sm:grid-cols-2">
     {featured.map((project) => <ProjectCard project={project} />)}
   </div>
 
   {
     compact.length > 0 && (
-      <>
-        <h3 class="mt-12 font-mono text-xs uppercase tracking-wide text-muted">Also built</h3>
-        <ul class="mt-4 divide-y divide-border">
+      <div class="mt-14 border-t border-rule pt-6">
+        <h3 class="readout mb-4">Also built · coursework</h3>
+        <ul class="space-y-3">
           {compact.map((project) => (
-            <li class="py-3">
-              <div class="flex flex-wrap items-baseline gap-x-3">
-                <span class="text-sm font-medium">{project.data.title}</span>
-                <span class="font-mono text-xs text-muted">{project.data.tags.join(' · ')}</span>
-              </div>
-              <p class="mt-1 text-xs text-muted">{project.data.summary}</p>
+            <li class="flex flex-wrap items-baseline gap-x-3">
+              <span class="text-sm font-medium">{project.data.title}</span>
+              <span class="font-mono text-[0.6875rem] text-ink-soft">
+                {project.data.tags.join(' · ')}
+              </span>
+              <span class="w-full text-xs text-ink-soft sm:w-auto sm:flex-1">
+                {project.data.summary}
+              </span>
             </li>
           ))}
         </ul>
-      </>
+      </div>
     )
   }
 </Section>

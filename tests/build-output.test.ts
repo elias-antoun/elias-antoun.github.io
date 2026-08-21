@@ -165,6 +165,13 @@ describe('content completeness', () => {
     expect(index().raw).toContain('12,375');
   });
 
+  it('reads the name as two words in the h1', () => {
+    // A bare <br> between the names collapses the accessible name and any
+    // copy-paste to "EliasAntoun".
+    const h1 = index().dom.querySelector('h1');
+    expect(h1?.text.replace(/\s+/g, ' ').trim()).toBe('Elias Antoun');
+  });
+
   it('exposes canonical URL and Person structured data', () => {
     expect(index().dom.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://elias-antoun.github.io/'

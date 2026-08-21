@@ -9,22 +9,22 @@ const email = obfuscateEmail(socials[0].handle, 'outlook.com');
 const externalSocials = socials.filter((s) => s.href.startsWith('http'));
 ---
 
-<Section id="contact" index="07" heading="Contact">
-  <p class="max-w-2xl text-muted">
-    Open to internship and new-grad engineering roles. The fastest way to reach me is email.
+<Section id="contact" heading="Contact" meta="Open to 2027 roles">
+  <p class="max-w-xl text-sm leading-relaxed text-ink-soft">
+    Looking for internships and new-grad engineering work. Email reaches me fastest.
   </p>
 
-  <div class="mt-6 flex flex-wrap items-center gap-4">
+  <div class="mt-7 flex flex-wrap items-center gap-x-5 gap-y-3">
     <Button href={email.href}>{email.text}</Button>
     {externalSocials.map((s) => <IconLink href={s.href} label={s.label}>{s.label}</IconLink>)}
   </div>
 
-  <dl class="mt-10 flex flex-wrap gap-8">
+  <dl class="mt-12 flex flex-wrap gap-x-10 gap-y-3 border-t border-rule pt-5">
     {
       languages.map((language) => (
-        <div>
+        <div class="flex items-baseline gap-2">
           <dt class="text-sm">{language.name}</dt>
-          <dd class="mt-0.5 font-mono text-xs text-muted">{language.level}</dd>
+          <dd class="font-mono text-[0.6875rem] text-ink-soft">{language.level}</dd>
         </div>
       ))
     }

@@ -3,31 +3,36 @@ import Section from './Section.astro';
 import { education, certifications } from '../data/site';
 ---
 
-<Section id="education" index="06" heading="Education &amp; Certifications">
-  <article class="sm:grid sm:grid-cols-[9rem_1fr] sm:gap-6">
-    <p class="font-mono text-xs text-muted sm:pt-1">{education.period}</p>
-    <div class="mt-2 sm:mt-0">
-      <h3 class="font-semibold">{education.institution}</h3>
-      <p class="mt-1 text-sm text-muted">{education.degree}</p>
-      <ul class="mt-3 space-y-1">
-        {education.highlights.map((item) => <li class="font-mono text-xs text-accent">{item}</li>)}
-      </ul>
-    </div>
+<Section id="education" heading="Education" meta={education.period}>
+  <article class="border-t border-rule pt-5">
+    <h3 class="display text-base sm:text-lg">{education.institution}</h3>
+    <p class="mt-1.5 text-sm text-ink-soft">{education.degree}</p>
+    <ul class="mt-4 flex flex-wrap gap-x-8 gap-y-2">
+      {
+        education.highlights.map((item) => (
+          <li class="font-mono text-[0.8125rem] text-signal">{item}</li>
+        ))
+      }
+    </ul>
   </article>
 
-  <div class="mt-10 space-y-6">
-    {
-      certifications.map((cert) => (
-        <article class="sm:grid sm:grid-cols-[9rem_1fr] sm:gap-6">
-          <p class="font-mono text-xs text-muted sm:pt-0.5">{cert.date}</p>
-          <div class="mt-1 sm:mt-0">
-            <h4 class="text-sm font-medium">
-              {cert.name} <span class="text-muted">· {cert.issuer}</span>
-            </h4>
-            <p class="mt-1 text-sm text-muted">{cert.detail}</p>
-          </div>
-        </article>
-      ))
-    }
+  <div class="mt-12">
+    <h3 class="readout mb-4">Certifications</h3>
+    <div class="space-y-6">
+      {
+        certifications.map((cert) => (
+          <article class="border-t border-rule pt-4 sm:grid sm:grid-cols-[6rem_1fr] sm:gap-6">
+            <span class="readout sm:pt-0.5">{cert.date}</span>
+            <div class="mt-1 sm:mt-0">
+              <h4 class="text-sm font-medium">
+                {cert.name}
+                <span class="font-normal text-ink-soft"> — {cert.issuer}</span>
+              </h4>
+              <p class="mt-1 text-sm text-ink-soft">{cert.detail}</p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
   </div>
 </Section>

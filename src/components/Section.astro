@@ -1,16 +1,18 @@
 ---
 interface Props {
   id: string;
-  index: string;
   heading: string;
+  /** A short readout stating something true about this section's content —
+      a count, a date range. Omit rather than inventing one. */
+  meta?: string;
 }
-const { id, index, heading } = Astro.props;
+const { id, heading, meta } = Astro.props;
 ---
 
-<section id={id} class="scroll-mt-20 border-t border-border py-16">
-  <div class="mb-8 flex items-baseline gap-3">
-    <span class="font-mono text-xs text-muted">{index}</span>
-    <h2 class="text-2xl font-semibold tracking-tight">{heading}</h2>
+<section id={id} class="scroll-mt-20 py-14 sm:py-20">
+  <div class="mb-8 flex items-end justify-between gap-4 border-b border-rule pb-3">
+    <h2 class="display text-xl sm:text-2xl">{heading}</h2>
+    {meta && <span class="readout shrink-0 pb-0.5">{meta}</span>}
   </div>
   <slot />
 </section>

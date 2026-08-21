@@ -1,0 +1,200 @@
+---
+// The page's signature element. Draws a noisy signal and its moving-average
+// filtered result — the actual subject of the Multi-Sensor IMU Pipeline
+// project, and the thesis of the whole résumé: noisy input, precise output.
+//
+// The canvas is decorative in the accessibility sense; the legend below states
+// what the two lines are, so nothing is conveyed by the drawing alone.
+---
+
+<figure class="not-prose my-0">
+  <div class="relative overflow-hidden rounded-sm border border-rule bg-panel">
+    <canvas
+      id="signal-trace"
+      aria-hidden="true"
+      class="block h-[190px] w-full sm:h-[240px]"></canvas>
+  </div>
+
+  <figcaption class="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+    <span class="flex items-center gap-2">
+      <svg width="26" height="10" viewBox="0 0 26 10" aria-hidden="true" class="shrink-0">
+        <path
+          d="M0 7 L3 3 L5 8 L8 2 L11 7 L14 3 L17 8 L20 3 L23 7 L26 4"
+          fill="none"
+          stroke="var(--raw)"
+          stroke-width="1"></path>
+      </svg>
+      <span class="readout">raw · imu</span>
+    </span>
+    <span class="flex items-center gap-2">
+      <svg width="26" height="10" viewBox="0 0 26 10" aria-hidden="true" class="shrink-0">
+        <path
+          d="M0 6 Q6.5 4.5 13 5 T26 5"
+          fill="none"
+          stroke="var(--signal)"
+          stroke-width="2.5"></path>
+      </svg>
+      <span class="readout">moving average</span>
+    </span>
+  </figcaption>
+</figure>
+
+<script>
+  const el = document.getElementById('signal-trace');
+  const ctx0 = el instanceof HTMLCanvasElement ? el.getContext('2d') : null;
+
+  // Captured as non-null consts so the narrowing survives into the closures.
+  if (el instanceof HTMLCanvasElement && ctx0) {
+    const canvas = el;
+    const ctx = ctx0;
+    const SAMPLES = 460;
+    const WINDOW = 23;
+
+    // Seeded so the trace is identical on every load — a different squiggle
+    // each refresh would read as noise for its own sake.
+    function mulberry32(seed: number) {
+      return () => {
+        seed = (seed + 0x6d2b79f5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    // A plausible IMU trace: slow drift, two motion events, constant noise.
+    function buildSeries() {
+      const rand = mulberry32(20260821);
+      const raw: number[] = [];
+      for (let i = 0; i < SAMPLES; i++) {
+        const t = i / SAMPLES;
+        const drift = Math.sin(t * Math.PI * 2.1) * 0.34;
+        const event = Math.exp(-Math.pow((t - 0.36) / 0.05, 2)) * 0.42
+                    - Math.exp(-Math.pow((t - 0.68) / 0.045, 2)) * 0.3;
+        const noise = (rand() - 0.5) * 0.42;
+        raw.push(drift + event + noise);
+      }
+      const filtered = raw.map((_, i) => {
+        const from = Math.max(0, i - WINDOW);
+        const slice = raw.slice(from, i + 1);
+        return slice.reduce((a, b) => a + b, 0) / slice.length;
+      });
+      return { raw, filtered };
+    }
+
+    const { raw, filtered } = buildSeries();
+
+    function css(name: string) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    let hasDrawn = false;
+
+    function draw(progress: number) {
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      // Laid out with zero size (hidden ancestor); drawing now would paint
+      // nothing and leave a 0x0 bitmap behind. Wait for a real size.
+      if (w <= 0 || h <= 0) return;
+      hasDrawn = true;
+      if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+
+      const padX = 0;
+      const mid = h / 2;
+      const amp = h * 0.36;
+      const x = (i: number) => padX + (i / (SAMPLES - 1)) * (w - padX * 2);
+      const y = (v: number) => mid - v * amp;
+      const upto = Math.max(2, Math.floor(SAMPLES * progress));
+
+      // Centre line
+      ctx.strokeStyle = css('--rule');
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, mid);
+      ctx.lineTo(w, mid);
+      ctx.stroke();
+
+      // Raw: thin, translucent, jagged.
+      ctx.strokeStyle = css('--raw');
+      ctx.globalAlpha = 0.7;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i < upto; i++) {
+        i === 0 ? ctx.moveTo(x(i), y(raw[i])) : ctx.lineTo(x(i), y(raw[i]));
+      }
+      ctx.stroke();
+
+      // Filtered: thick, opaque, smooth. Weight and smoothness — not colour —
+      // are what separate it from the raw trace.
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = css('--signal');
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      for (let i = 0; i < upto; i++) {
+        i === 0 ? ctx.moveTo(x(i), y(filtered[i])) : ctx.lineTo(x(i), y(filtered[i]));
+      }
+      ctx.stroke();
+    }
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    function animate() {
+      const start = performance.now();
+      const DURATION = 1150;
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / DURATION);
+        // Ease out so the trace settles rather than stopping abruptly.
+        draw(1 - Math.pow(1 - t, 3));
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    function start() {
+      // requestAnimationFrame does not fire in a background tab. Animating
+      // unconditionally leaves the hero permanently blank for anyone who
+      // opens the page in a background tab, so draw the finished frame
+      // instead and skip the animation they already missed.
+      if (reduced.matches || document.visibilityState === 'hidden') {
+        draw(1);
+        return;
+      }
+      animate();
+    }
+
+    start();
+
+    // If the page was hidden at load and never got a frame, paint it as soon
+    // as it becomes visible.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !hasDrawn) draw(1);
+    });
+
+    // ResizeObserver rather than a window listener: the canvas can gain its
+    // real size without the window ever resizing.
+    if ('ResizeObserver' in window) {
+      let queued = false;
+      new ResizeObserver(() => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          draw(1);
+        });
+      }).observe(canvas);
+    }
+
+    // Keep the trace in the current palette when the theme changes.
+    new MutationObserver(() => draw(1)).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+  }
+</script>
