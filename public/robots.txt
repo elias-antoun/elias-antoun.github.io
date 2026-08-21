@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://elias-antoun.github.io/sitemap-index.xml
