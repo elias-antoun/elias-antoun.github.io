@@ -1,1 +1,79 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/* Latin subset only — the full imports pull cyrillic, greek and vietnamese too. */
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-mono/latin-400.css';
+@import '@fontsource/ibm-plex-mono/latin-500.css';
+
+/* Light palette — the default. */
+:root {
+  --bg: #fcfcfb;
+  --surface: #ffffff;
+  --border: #e4e4e1;
+  --text: #14161a;
+  --muted: #5f646e;
+  --accent: #1d4ed8;
+}
+
+/* An explicit dark choice wins in both directions. */
+[data-theme='dark'] {
+  --bg: #0e1116;
+  --surface: #161a21;
+  --border: #262b34;
+  --text: #e8eaed;
+  --muted: #9ba1ac;
+  --accent: #6e9bff;
+}
+
+/* System preference, unless the user explicitly chose light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e1116;
+    --surface: #161a21;
+    --border: #262b34;
+    --text: #e8eaed;
+    --muted: #9ba1ac;
+    --accent: #6e9bff;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
