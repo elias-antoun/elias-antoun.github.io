@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { partitionProjects } from '../src/lib/projects';
+import { partitionProjects, initialsFor } from '../src/lib/projects';
 
 const entry = (title: string, featured: boolean, order: number) => ({
   data: { title, featured, order },
@@ -39,5 +39,36 @@ describe('partitionProjects', () => {
     const snapshot = input.map((e) => e.data.title);
     partitionProjects(input);
     expect(input.map((e) => e.data.title)).toEqual(snapshot);
+  });
+});
+
+describe('initialsFor', () => {
+  it('uses word initials for multi-word titles', () => {
+    expect(initialsFor('Robot Perception Manager')).toBe('RPM');
+    expect(initialsFor('Academy Object Detection')).toBe('AOD');
+    expect(initialsFor('DevPulse Agentic Workspace')).toBe('DAW');
+  });
+
+  it('caps multi-word initials at three letters', () => {
+    expect(initialsFor('Hand Gesture Controlled Robotic Car')).toBe('HGC');
+    expect(initialsFor('License Plate Recognition System')).toBe('LPR');
+  });
+
+  it('uses internal capitals for single-word titles', () => {
+    // Word initials alone would give a bare "I", which looks like a bug.
+    expect(initialsFor('InMindCNN')).toBe('IMC');
+  });
+
+  it('falls back to the first two characters for a lowercase single word', () => {
+    expect(initialsFor('portfolio')).toBe('PO');
+  });
+
+  it('ignores leading words that do not start with a letter', () => {
+    expect(initialsFor('3D Scene Reconstruction')).toBe('SR');
+  });
+
+  it('returns an empty string rather than throwing on unusable input', () => {
+    expect(initialsFor('')).toBe('');
+    expect(initialsFor('123 456')).toBe('');
   });
 });

@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import Tag from './ui/Tag.astro';
+import { initialsFor } from '../lib/projects';
 
 interface Props {
   project: CollectionEntry<'projects'>;
@@ -9,14 +10,9 @@ interface Props {
 const { project } = Astro.props;
 const { title, summary, tags, cover, coverAlt, links, metrics } = project.data;
 
-// Fallback tile: initials from the title, shown when no cover image exists.
-// Every card uses this today — cover images are supplied later.
-const initials = title
-  .split(' ')
-  .filter((word) => /^[A-Za-z]/.test(word))
-  .slice(0, 3)
-  .map((word) => word[0].toUpperCase())
-  .join('');
+// Fallback tile monogram, shown when no cover image exists. Every card uses
+// this today — cover images are supplied later.
+const initials = initialsFor(title);
 ---
 
 <article class="flex flex-col overflow-hidden rounded border border-border bg-surface">
