@@ -1,0 +1,8 @@
+---
+import Section from './Section.astro';
+import { profile } from '../data/site';
+---
+
+<Section id="about" index="02" heading="About">
+  <p class="max-w-2xl leading-relaxed text-muted">{profile.about}</p>
+</Section>

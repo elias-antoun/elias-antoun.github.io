@@ -1,0 +1,32 @@
+---
+import Button from './ui/Button.astro';
+import StatTile from './ui/StatTile.astro';
+import IconLink from './ui/IconLink.astro';
+import { profile, stats, socials } from '../data/site';
+import { obfuscateEmail } from '../lib/email';
+
+const email = obfuscateEmail(socials[0].handle, 'outlook.com');
+const externalSocials = socials.filter((s) => s.href.startsWith('http'));
+---
+
+<div class="py-16">
+  <p class="font-mono text-xs text-muted">{profile.availability}</p>
+
+  <h1 class="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">{profile.name}</h1>
+  <p class="mt-2 font-mono text-sm text-accent">{profile.title}</p>
+
+  <p class="mt-6 max-w-2xl text-muted">{profile.positioning}</p>
+
+  <div class="mt-8 flex flex-wrap gap-6">
+    {stats.map((stat) => <StatTile value={stat.value} label={stat.label} />)}
+  </div>
+
+  <div class="mt-8 flex flex-wrap items-center gap-3">
+    <Button href={email.href}>Get in touch</Button>
+    <Button href="/Elias_Antoun_Resume.pdf" variant="secondary" download>Download CV</Button>
+  </div>
+
+  <div class="mt-6 flex gap-4">
+    {externalSocials.map((s) => <IconLink href={s.href} label={s.label}>{s.label}</IconLink>)}
+  </div>
+</div>
