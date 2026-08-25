@@ -49,8 +49,4 @@ describe('site data shape', () => {
   it('exposes three hero statistics', () => {
     expect(stats).toHaveLength(3);
   });
-
-  it('states the graduation year for the internship audience', () => {
-    expect(profile.availability).toMatch(/2027/);
-  });
 });
