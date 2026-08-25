@@ -9,10 +9,8 @@ const externalSocials = socials.filter((s) => s.href.startsWith('http'));
 
 <section id="top" class="border-b border-border">
   <div class="mx-auto w-full max-w-5xl px-6 py-20 sm:py-28">
-    <p class="eyebrow">{profile.availability}</p>
-
-    <h1 class="mt-4 text-4xl font-bold tracking-tight sm:text-6xl">Elias Antoun</h1>
-    <p class="mt-3 text-xl font-medium text-muted sm:text-2xl">{profile.title}</p>
+    <h1 class="wordmark text-4xl leading-[1.05] sm:text-6xl lg:text-7xl">{profile.name}</h1>
+    <p class="mt-4 font-mono text-base text-muted sm:text-xl">{profile.title}</p>
 
     <p class="mt-6 max-w-2xl leading-relaxed text-muted">{profile.positioning}</p>
 

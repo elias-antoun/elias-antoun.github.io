@@ -25,7 +25,6 @@ export const profile = {
   title: 'Computer and Communications Engineer',
   positioning:
     'I build systems that turn engineering concepts into working prototypes — autonomous document-processing agents, ROS 2 navigation stacks, and computer-vision pipelines.',
-  availability: 'Graduating 2027 · open to internships and new-grad roles',
   about:
     'I am a fourth-year Computer and Communications Engineering student at Notre Dame University – Louaize, holding a 4.0 GPA and Dean’s Honor List recognition every semester. My work spans AI and machine learning, robotics, and embedded hardware, and I care most about the part where a concept becomes something that measurably runs. Two 2026 internships took me from evolutionary prompt optimisation over invoice corpora to containerised ROS 2 navigation on real robots.',
 } as const;

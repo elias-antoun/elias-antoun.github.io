@@ -1,12 +1,16 @@
 @import 'tailwindcss';
 
-@import '@fontsource/instrument-sans/latin-400.css';
-@import '@fontsource/instrument-sans/latin-500.css';
-@import '@fontsource/instrument-sans/latin-600.css';
-@import '@fontsource/instrument-sans/latin-700.css';
+/* IBM Plex — IBM's typeface for technical work. The sans and the mono are
+   metrically related, so mixing them across headings, labels and body copy
+   reads as one system rather than two fonts. */
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-sans/latin-700.css';
 
 @import '@fontsource/ibm-plex-mono/latin-400.css';
 @import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';
 
 /* Light palette — the default.
    --accent-soft is a tinted fill for chips and metric pills; it is a
@@ -65,7 +69,7 @@
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
 
-  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
 
   --radius-card: 12px;
@@ -82,6 +86,14 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* The name, as a wordmark: monospace and tightly tracked so it reads like a
+   nameplate rather than a headline. Also used by the sticky header brand. */
+.wordmark {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: -0.03em;
 }
 
 /* Small uppercase label sitting above a section heading. */
