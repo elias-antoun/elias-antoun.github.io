@@ -1,0 +1,317 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+const { projects } = Astro.props;
+
+// Render each project body once, server-side, into a hidden source node. The
+// sheet clones from these — so the full write-up is real, crawlable content in
+// the page rather than something fetched on demand.
+const rendered = await Promise.all(
+  projects.map(async (project) => ({
+    project,
+    Content: (await render(project)).Content,
+  }))
+);
+---
+
+<!-- Hidden sources. Not display:none — that would drop them from the
+     accessibility tree and from find-in-page. Clipped instead. -->
+<div class="sr-only">
+  {
+    rendered.map(({ project, Content }) => (
+      <article id={`sheet-source-${project.id}`} data-sheet-source>
+        <h3 data-sheet-title>{project.data.title}</h3>
+        <div data-sheet-body>
+          <Content />
+        </div>
+      </article>
+    ))
+  }
+</div>
+
+<div
+  id="sheet-scrim"
+  hidden
+  class="fixed inset-0 z-40 bg-[var(--scrim)] opacity-0"
+  aria-hidden="true"
+></div>
+
+<div
+  id="sheet"
+  hidden
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="sheet-heading"
+  class="material-sheet fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[88vh] w-full max-w-3xl flex-col rounded-t-2xl"
+>
+  <!-- Grab area. Generous hit target, and the handle is the affordance. -->
+  <div id="sheet-grip" class="shrink-0 cursor-grab touch-none px-6 pt-3 pb-1 active:cursor-grabbing">
+    <div class="mx-auto h-1.5 w-10 rounded-full bg-[var(--border)]"></div>
+  </div>
+
+  <div class="flex shrink-0 items-start justify-between gap-4 px-6 pt-2 pb-3">
+    <h2 id="sheet-heading" class="t-title"></h2>
+    <button
+      id="sheet-close"
+      type="button"
+      class="pressable -mr-1 shrink-0 rounded-full border border-border px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:border-accent hover:text-accent"
+    >
+      Close
+    </button>
+  </div>
+
+  <div
+    id="sheet-body"
+    class="t-body min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-8 text-muted [&>p]:mt-4 [&>p:first-child]:mt-0 [&_code]:font-mono [&_code]:text-[0.875em] [&_code]:text-accent"
+  >
+  </div>
+</div>
+
+<script>
+  import { Spring } from '../lib/spring';
+  import { project as projectMomentum, rubberband, VelocityTracker } from '../lib/gesture';
+
+  const sheet = document.getElementById('sheet');
+  const scrim = document.getElementById('sheet-scrim');
+  const grip = document.getElementById('sheet-grip');
+  const heading = document.getElementById('sheet-heading');
+  const body = document.getElementById('sheet-body');
+  const closeButton = document.getElementById('sheet-close');
+
+  if (sheet && scrim && grip && heading && body && closeButton) {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // Apple's drawer values: a little bounce, because a drawer is something you
+    // throw. Bounce is earned by the gesture carrying momentum.
+    const SPRING = { dampingRatio: 0.8, response: 0.3 };
+    const DISMISS_VELOCITY = 420; // px/s downward flick that commits to closing
+
+    let height = 0;
+    let spring = new Spring(0, SPRING);
+    let frame = 0;
+    let lastTime = 0;
+    let isOpen = false;
+    let dragging = false;
+    let grabOffset = 0;
+    let lastFocused: HTMLElement | null = null;
+    const tracker = new VelocityTracker();
+
+    /**
+     * Measure how far the sheet travels to be fully closed.
+     *
+     * Measuring straight after unhiding can return a near-zero rect before
+     * layout settles. Trusting that would leave the rubber-band and the
+     * dismissal threshold operating on a ~1px dimension, so anything
+     * implausibly small falls back to a viewport fraction instead. A truthiness
+     * check is not enough — 1 is truthy.
+     */
+    const MIN_TRAVEL = 320;
+
+    function measure() {
+      const measured = sheet!.getBoundingClientRect().height;
+      const fallback = Math.round(window.innerHeight * 0.6);
+      // The floor matters: a zero dimension makes paint() divide by zero and
+      // the rubber-band collapse to nothing. Never let the physics run on it.
+      height = Math.max(measured > 80 ? measured : fallback, MIN_TRAVEL);
+    }
+
+    const closedY = () => Math.max(height, MIN_TRAVEL);
+
+    function paint(y: number) {
+      sheet!.style.transform = `translate3d(0, ${y}px, 0)`;
+      // The scrim tracks the sheet 1:1, so dragging visibly lightens the
+      // background instead of the dim staying constant until release.
+      const progress = 1 - Math.min(1, Math.max(0, y / closedY()));
+      scrim!.style.opacity = String(progress);
+    }
+
+    function tick(now: number) {
+      const dt = lastTime ? (now - lastTime) / 1000 : 1 / 60;
+      lastTime = now;
+      paint(spring.step(dt));
+      if (!spring.settled) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        frame = 0;
+        lastTime = 0;
+        if (!isOpen) finishClose();
+      }
+    }
+
+    function run() {
+      if (frame) cancelAnimationFrame(frame);
+      lastTime = 0;
+      frame = requestAnimationFrame(tick);
+    }
+
+    function stopAnimation() {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      lastTime = 0;
+    }
+
+    /**
+     * True when we must not rely on requestAnimationFrame to finish the job:
+     * either the user asked for reduced motion, or the page is hidden and rAF
+     * will not tick — which would leave the sheet parked offscreen mid-spring.
+     */
+    function resolveInstantly() {
+      return reduceMotion.matches || document.visibilityState === 'hidden';
+    }
+
+    function settleTo(target: number, velocity?: number) {
+      if (resolveInstantly()) {
+        // Non-vestibular equivalent: no travel, just resolve.
+        stopAnimation();
+        spring.set(target);
+        paint(target);
+        if (!isOpen) finishClose();
+        return;
+      }
+      spring.retarget(target, velocity);
+      run();
+    }
+
+    function finishClose() {
+      sheet!.hidden = true;
+      scrim!.hidden = true;
+      document.body.style.overflow = '';
+      document.getElementById('main')?.removeAttribute('aria-hidden');
+      lastFocused?.focus();
+      lastFocused = null;
+    }
+
+    function open(slug: string, trigger: HTMLElement) {
+      const source = document.getElementById(`sheet-source-${slug}`);
+      if (!source) return;
+
+      lastFocused = trigger;
+      heading!.textContent = source.querySelector('[data-sheet-title]')?.textContent ?? '';
+      body!.innerHTML = source.querySelector('[data-sheet-body]')?.innerHTML ?? '';
+
+      sheet!.hidden = false;
+      scrim!.hidden = false;
+      document.body.style.overflow = 'hidden';
+      document.getElementById('main')?.setAttribute('aria-hidden', 'true');
+
+      // Measure after it is in the layout, then start from fully closed so the
+      // sheet rises from the bottom edge it will return to.
+      measure();
+      isOpen = true;
+
+      if (resolveInstantly()) {
+        spring = new Spring(0, { ...SPRING, from: 0 });
+        paint(0);
+      } else {
+        spring = new Spring(0, { ...SPRING, from: closedY() });
+        paint(closedY());
+        run();
+      }
+      closeButton!.focus();
+    }
+
+    function close(velocity = 0) {
+      if (!isOpen) return;
+      isOpen = false;
+      settleTo(closedY(), velocity);
+    }
+
+    // --- drag -----------------------------------------------------------------
+    grip.addEventListener('pointerdown', (event: PointerEvent) => {
+      if (!isOpen) return;
+      grip.setPointerCapture(event.pointerId);
+      dragging = true;
+
+      // Grabbing mid-flight adopts the live on-screen value, so an animating
+      // sheet can be caught and redirected without a jump.
+      stopAnimation();
+      const current = spring.value;
+      grabOffset = event.clientY - current;
+
+      tracker.reset();
+      tracker.add(event.clientY, event.timeStamp);
+      event.preventDefault();
+    });
+
+    grip.addEventListener('pointermove', (event: PointerEvent) => {
+      if (!dragging) return;
+      tracker.add(event.clientY, event.timeStamp);
+
+      let y = event.clientY - grabOffset;
+      // Past the open position there is nothing more to reveal, so resist
+      // instead of letting the sheet fly up off its own top edge.
+      if (y < 0) y = rubberband(y, closedY());
+      spring.set(y);
+      paint(y);
+    });
+
+    function endDrag(event: PointerEvent) {
+      if (!dragging) return;
+      dragging = false;
+      tracker.add(event.clientY, event.timeStamp);
+      const velocity = tracker.velocity;
+      const current = spring.value;
+
+      // Velocity sign decides intent, not position: a fast downward flick from
+      // near the top should still dismiss.
+      if (velocity > DISMISS_VELOCITY) {
+        close(velocity);
+        return;
+      }
+      if (velocity < -DISMISS_VELOCITY) {
+        settleTo(0, velocity);
+        return;
+      }
+
+      // Otherwise project where the throw would land and pick the nearer end.
+      const projected = current + projectMomentum(velocity);
+      if (projected > closedY() / 2) close(velocity);
+      else settleTo(0, velocity);
+    }
+
+    grip.addEventListener('pointerup', endDrag);
+    grip.addEventListener('pointercancel', endDrag);
+
+    // --- open / close triggers ------------------------------------------------
+    document.querySelectorAll<HTMLElement>('[data-sheet-open]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        const slug = trigger.dataset.sheetOpen;
+        if (slug) open(slug, trigger);
+      });
+    });
+
+    closeButton.addEventListener('click', () => close());
+    scrim.addEventListener('click', () => close());
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isOpen) close();
+    });
+
+    // Keep focus inside the sheet while it is modal.
+    sheet.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const focusable = sheet.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    // A resize changes how far "closed" is; re-measure so the sheet does not
+    // settle to a stale offscreen position.
+    window.addEventListener('resize', () => {
+      if (!isOpen) return;
+      measure();
+    });
+  }
+</script>

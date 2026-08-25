@@ -18,6 +18,20 @@ function tokenNames(pattern: RegExp): string[] {
   return [...block(pattern).matchAll(/(--[a-z-]+)\s*:/g)].map((m) => m[1]).sort();
 }
 
+/**
+ * Tokens whose value is a colour.
+ *
+ * Every colour needs a definition in both palettes. Non-colour tokens — blur
+ * radii, for instance — are deliberately theme-independent, so comparing raw
+ * token names across blocks would flag correct code.
+ */
+function colourTokenNames(pattern: RegExp): string[] {
+  return [...block(pattern).matchAll(/(--[a-z-]+)\s*:\s*([^;]+);/g)]
+    .filter(([, , value]) => /#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\(|color-mix\(/.test(value))
+    .map(([, name]) => name)
+    .sort();
+}
+
 function tokenValues(pattern: RegExp): Record<string, string> {
   const out: Record<string, string> = {};
   for (const m of block(pattern).matchAll(/(--[a-z-]+)\s*:\s*(#[0-9a-fA-F]{6})\s*;/g)) {
@@ -46,19 +60,41 @@ describe('design tokens', () => {
     }
   });
 
-  it('redefines every light token in the dark attribute block', () => {
-    const light = tokenNames(LIGHT_BLOCK);
-    const dark = tokenNames(DARK_BLOCK);
+  it('redefines every light colour in the dark attribute block', () => {
+    const light = colourTokenNames(LIGHT_BLOCK);
+    const dark = colourTokenNames(DARK_BLOCK);
     // Guard against both sides being empty, which would pass vacuously.
     expect(dark.length).toBeGreaterThanOrEqual(REQUIRED.length);
     expect(dark).toEqual(light);
   });
 
-  it('redefines every light token under prefers-color-scheme dark', () => {
-    const light = tokenNames(LIGHT_BLOCK);
-    const media = tokenNames(MEDIA_BLOCK);
+  it('redefines every light colour under prefers-color-scheme dark', () => {
+    const light = colourTokenNames(LIGHT_BLOCK);
+    const media = colourTokenNames(MEDIA_BLOCK);
     expect(media.length).toBeGreaterThanOrEqual(REQUIRED.length);
     expect(media).toEqual(light);
+  });
+
+  it('defines the translucent material and scrim colours in both palettes', () => {
+    const materials = ['--material-chrome', '--material-sheet', '--material-edge', '--scrim'];
+    for (const [label, pattern] of [
+      ['light', LIGHT_BLOCK],
+      ['dark', DARK_BLOCK],
+    ] as const) {
+      const names = tokenNames(pattern);
+      for (const token of materials) {
+        expect(names, `${label} palette missing ${token}`).toContain(token);
+      }
+    }
+  });
+
+  it('keeps blur radii theme-independent', () => {
+    // Blur is a property of the material, not the palette. If these ever start
+    // differing per theme, it is worth asking why.
+    const light = tokenNames(LIGHT_BLOCK);
+    expect(light).toContain('--blur-chrome');
+    expect(light).toContain('--blur-sheet');
+    expect(tokenNames(DARK_BLOCK)).not.toContain('--blur-chrome');
   });
 
   it('keeps the attribute and media dark palettes identical', () => {

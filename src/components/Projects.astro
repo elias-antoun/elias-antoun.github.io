@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import Section from './Section.astro';
 import ProjectCard from './ProjectCard.astro';
+import ProjectSheet from './ProjectSheet.astro';
 import { partitionProjects } from '../lib/projects';
 
 const entries = await getCollection('projects');
@@ -12,7 +13,7 @@ const { featured, compact } = partitionProjects(entries);
   id="projects"
   eyebrow="Builds"
   heading="Projects"
-  lede="Machine learning, robotics and embedded work, from coursework prototypes to internship systems."
+  lede="Machine learning, robotics and embedded work, from coursework prototypes to internship systems. Open any card for the full write-up."
   alt
 >
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -22,12 +23,12 @@ const { featured, compact } = partitionProjects(entries);
   {
     compact.length > 0 && (
       <div class="mt-10">
-        <h3 class="text-sm font-semibold tracking-tight">Also built</h3>
+        <h3 class="t-heading">Also built</h3>
         <div class="mt-4 grid gap-4 sm:grid-cols-3">
           {compact.map((project) => (
             <article class="card p-5">
               <h4 class="text-sm font-semibold">{project.data.title}</h4>
-              <p class="mt-2 text-sm leading-relaxed text-muted">{project.data.summary}</p>
+              <p class="t-small mt-2 text-muted">{project.data.summary}</p>
               <div class="mt-4 flex flex-wrap gap-1.5">
                 {project.data.tags.map((tag) => (
                   <span class="chip">{tag}</span>
@@ -40,3 +41,5 @@ const { featured, compact } = partitionProjects(entries);
     )
   }
 </Section>
+
+<ProjectSheet projects={featured} />

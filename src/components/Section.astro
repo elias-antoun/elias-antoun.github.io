@@ -15,8 +15,8 @@ const { id, eyebrow, heading, lede, alt = false } = Astro.props;
 <section id={id} class:list={['scroll-mt-16 py-16 sm:py-20', alt && 'bg-bg-alt']}>
   <div class="mx-auto w-full max-w-5xl px-6">
     <p class="eyebrow">{eyebrow}</p>
-    <h2 class="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{heading}</h2>
-    {lede && <p class="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{lede}</p>}
+    <h2 class="t-title mt-2">{heading}</h2>
+    {lede && <p class="t-small mt-3 max-w-2xl text-muted">{lede}</p>}
     <div class="mt-8">
       <slot />
     </div>
