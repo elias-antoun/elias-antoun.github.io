@@ -13,9 +13,10 @@ const externalSocials = socials.filter((s) => s.href.startsWith('http'));
   eyebrow="Connect"
   heading="Get in touch"
   lede="Open to internships and new-grad engineering roles. Email reaches me fastest."
+  dark
 >
-  <div class="card p-6 sm:p-8">
-    <div class="flex flex-wrap items-center gap-4">
+  <div class="text-center">
+    <div class="flex flex-wrap items-center justify-center gap-4">
       <Button href={email.href}>{email.text}</Button>
       {
         externalSocials.map((s) => (
@@ -31,7 +32,9 @@ const externalSocials = socials.filter((s) => s.href.startsWith('http'));
       }
     </div>
 
-    <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-3 border-t border-border pt-6">
+    <dl
+      class="mx-auto mt-16 flex max-w-md flex-wrap items-baseline justify-center gap-x-10 gap-y-3 border-t border-border pt-8"
+    >
       {
         languages.map((language) => (
           <div class="flex items-baseline gap-2">

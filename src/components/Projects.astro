@@ -14,9 +14,9 @@ const { featured, compact } = partitionProjects(entries);
   eyebrow="Builds"
   heading="Projects"
   lede="Machine learning, robotics and embedded work, from coursework prototypes to internship systems. Open any card for the full write-up."
-  alt
+  dark
 >
-  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="grid gap-8 sm:grid-cols-2">
     {featured.map((project) => <ProjectCard project={project} />)}
   </div>
 

@@ -4,21 +4,33 @@ interface Props {
   /** Short uppercase label above the heading. */
   eyebrow: string;
   heading: string;
-  /** Optional one-line intro under the heading. */
+  /** Optional sentence under the heading. */
   lede?: string;
-  /** Tints the section band so adjacent sections separate visually. */
-  alt?: boolean;
+  /** Full-bleed dark chapter. Re-skins everything inside via the palette. */
+  dark?: boolean;
+  /** Subtle tint, for separating two adjacent light chapters. */
+  tint?: boolean;
 }
-const { id, eyebrow, heading, lede, alt = false } = Astro.props;
+const { id, eyebrow, heading, lede, dark = false, tint = false } = Astro.props;
 ---
 
-<section id={id} class:list={['scroll-mt-16 py-16 sm:py-20', alt && 'bg-bg-alt']}>
-  <div class="mx-auto w-full max-w-5xl px-6">
+<section
+  id={id}
+  class:list={[
+    'scroll-mt-16 px-6 py-24 sm:py-32',
+    dark && 'chapter-dark',
+    tint && !dark && 'bg-bg-alt',
+  ]}
+>
+  <!-- Centred header, generous air beneath it. The content below stays
+       left-aligned, because prose and data are read, not admired. -->
+  <div class="mx-auto max-w-3xl text-center">
     <p class="eyebrow">{eyebrow}</p>
-    <h2 class="t-title mt-2">{heading}</h2>
-    {lede && <p class="t-small mt-3 max-w-2xl text-muted">{lede}</p>}
-    <div class="mt-8">
-      <slot />
-    </div>
+    <h2 class="t-title mt-3">{heading}</h2>
+    {lede && <p class="t-lede mx-auto mt-5 max-w-2xl text-muted">{lede}</p>}
+  </div>
+
+  <div class="mx-auto mt-16 w-full max-w-5xl">
+    <slot />
   </div>
 </section>

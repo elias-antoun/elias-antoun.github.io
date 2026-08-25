@@ -5,6 +5,8 @@ const css = readFileSync('src/styles/global.css', 'utf8');
 
 const LIGHT_BLOCK = /:root\s*\{([^}]*)\}/;
 const DARK_BLOCK = /\[data-theme='dark'\]\s*\{([^}]*)\}/;
+/** The full-bleed dark chapter is a third palette and needs the same checks. */
+const CHAPTER_BLOCK = /\.chapter-dark\s*\{([^}]*)\}/;
 const MEDIA_BLOCK =
   /@media\s*\(prefers-color-scheme:\s*dark\)\s*\{\s*:root:not\(\[data-theme='light'\]\)\s*\{([^}]*)\}/;
 
@@ -123,6 +125,7 @@ describe('WCAG AA contrast in both palettes', () => {
   const palettes: Array<[string, Record<string, string>]> = [
     ['light', tokenValues(LIGHT_BLOCK)],
     ['dark', tokenValues(DARK_BLOCK)],
+    ['dark chapter', tokenValues(CHAPTER_BLOCK)],
   ];
 
   // Every foreground/background pairing the components actually produce.

@@ -88,6 +88,36 @@
   }
 }
 
+/* A full-bleed dark chapter inside a light page.
+   Every component styles against the palette tokens, so redefining them on the
+   chapter element re-skins everything inside it — no per-component dark
+   variants, no duplicated markup. In dark mode it goes deeper than the page so
+   the chapter still separates. */
+.chapter-dark {
+  --bg: #0a0c10;
+  --bg-alt: #11141a;
+  --panel: #161a21;
+  --border: #2b323c;
+  --text: #f3f6f9;
+  --muted: #a0abb8;
+  --accent: #8ab6ff;
+  --accent-soft: #18243a;
+  --on-accent: #0a1220;
+
+  --material-sheet: rgb(22 26 33 / 0.88);
+  --material-edge: rgb(255 255 255 / 0.1);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-card-hover: 0 10px 30px rgb(0 0 0 / 0.6);
+
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+[data-theme='dark'] .chapter-dark {
+  --bg: #05070a;
+  --panel: #10141a;
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-alt: var(--bg-alt);
@@ -134,17 +164,26 @@ body {
    wrong at one end of the scale or the other. Leading moves inversely to size.
    --------------------------------------------------------------------------- */
 .t-display {
-  font-size: clamp(2.25rem, 5.5vw, 3.75rem);
-  line-height: 1.03;
-  letter-spacing: -0.028em;
+  font-size: clamp(2.75rem, 8vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.032em;
   font-weight: 700;
 }
 
+/* Section headings are statements, so they carry real size rather than sitting
+   a notch above body copy. */
 .t-title {
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
-  line-height: 1.12;
-  letter-spacing: -0.019em;
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.026em;
   font-weight: 700;
+}
+
+/* A lede under a statement heading: larger than body, lighter in colour. */
+.t-lede {
+  font-size: clamp(1.0625rem, 1.6vw, 1.3125rem);
+  line-height: 1.5;
+  letter-spacing: -0.008em;
 }
 
 .t-heading {
