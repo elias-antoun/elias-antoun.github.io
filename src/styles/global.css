@@ -13,11 +13,10 @@
 @import '@fontsource/ibm-plex-mono/latin-600.css';
 
 /* Light palette — the default.
-   --accent-soft is a tinted fill for chips and metric pills; it is a
-   background only, never a text colour.
+   --accent-soft is a tinted fill for chips; a background only, never text.
    --on-accent is the text colour for use ON an accent fill: white fails AA
    against the lighter dark-mode accent, which is why the token exists.
-   tests/tokens.test.ts enforces every pairing below. */
+   tests/tokens.test.ts enforces every pairing. */
 :root {
   --bg: #ffffff;
   --bg-alt: #f6f8fb;
@@ -28,6 +27,20 @@
   --accent: #2158d0;
   --accent-soft: #e9f0ff;
   --on-accent: #ffffff;
+
+  /* Materials. A translucent layer is a real surface, so it carries its own
+     blur, tint and edge highlight rather than being "a transparent div". */
+  --material-chrome: rgb(255 255 255 / 0.72);
+  --material-sheet: rgb(255 255 255 / 0.86);
+  --material-edge: rgb(255 255 255 / 0.7);
+  --scrim: rgb(12 18 28 / 0.34);
+
+  /* Bigger surfaces read as thicker: deeper blur, deeper shadow. */
+  --blur-chrome: 20px;
+  --blur-sheet: 34px;
+  --shadow-card: 0 1px 2px rgb(22 32 46 / 0.05);
+  --shadow-card-hover: 0 8px 24px rgb(22 32 46 / 0.09);
+  --shadow-sheet: 0 -1px 0 rgb(22 32 46 / 0.06), 0 -24px 60px rgb(22 32 46 / 0.22);
 }
 
 /* An explicit dark choice wins in both directions. */
@@ -41,9 +54,17 @@
   --accent: #7fb0ff;
   --accent-soft: #16233a;
   --on-accent: #0a1220;
+
+  --material-chrome: rgb(13 17 23 / 0.72);
+  --material-sheet: rgb(20 27 38 / 0.88);
+  --material-edge: rgb(255 255 255 / 0.09);
+  --scrim: rgb(0 0 0 / 0.5);
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card-hover: 0 8px 24px rgb(0 0 0 / 0.5);
+  --shadow-sheet: 0 -1px 0 rgb(255 255 255 / 0.06), 0 -24px 60px rgb(0 0 0 / 0.6);
 }
 
-/* System preference, unless the user explicitly chose light. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #0d1117;
@@ -55,7 +76,46 @@
     --accent: #7fb0ff;
     --accent-soft: #16233a;
     --on-accent: #0a1220;
+
+    --material-chrome: rgb(13 17 23 / 0.72);
+    --material-sheet: rgb(20 27 38 / 0.88);
+    --material-edge: rgb(255 255 255 / 0.09);
+    --scrim: rgb(0 0 0 / 0.5);
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-card-hover: 0 8px 24px rgb(0 0 0 / 0.5);
+    --shadow-sheet: 0 -1px 0 rgb(255 255 255 / 0.06), 0 -24px 60px rgb(0 0 0 / 0.6);
   }
+}
+
+/* A full-bleed dark chapter inside a light page.
+   Every component styles against the palette tokens, so redefining them on the
+   chapter element re-skins everything inside it — no per-component dark
+   variants, no duplicated markup. In dark mode it goes deeper than the page so
+   the chapter still separates. */
+.chapter-dark {
+  --bg: #0a0c10;
+  --bg-alt: #11141a;
+  --panel: #161a21;
+  --border: #2b323c;
+  --text: #f3f6f9;
+  --muted: #a0abb8;
+  --accent: #8ab6ff;
+  --accent-soft: #18243a;
+  --on-accent: #0a1220;
+
+  --material-sheet: rgb(22 26 33 / 0.88);
+  --material-edge: rgb(255 255 255 / 0.1);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.5);
+  --shadow-card-hover: 0 10px 30px rgb(0 0 0 / 0.6);
+
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+[data-theme='dark'] .chapter-dark {
+  --bg: #05070a;
+  --panel: #10141a;
 }
 
 @theme inline {
@@ -78,14 +138,71 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  /* Spacing is in rem throughout, so raising the browser/OS text size scales
+     the layout with the type instead of breaking it. */
+  font-size: 100%;
 }
 
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Ease the light/dark swap rather than snapping brightness. */
+  transition:
+    background-color 260ms ease,
+    color 260ms ease;
+}
+
+/* ---------------------------------------------------------------------------
+   Type scale.
+
+   Tracking is size-specific: large text reads too loose as it grows, so it
+   tightens; small text needs a touch of air. A single letter-spacing value is
+   wrong at one end of the scale or the other. Leading moves inversely to size.
+   --------------------------------------------------------------------------- */
+.t-display {
+  font-size: clamp(2.75rem, 8vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  font-weight: 700;
+}
+
+/* Section headings are statements, so they carry real size rather than sitting
+   a notch above body copy. */
+.t-title {
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.026em;
+  font-weight: 700;
+}
+
+/* A lede under a statement heading: larger than body, lighter in colour. */
+.t-lede {
+  font-size: clamp(1.0625rem, 1.6vw, 1.3125rem);
+  line-height: 1.5;
+  letter-spacing: -0.008em;
+}
+
+.t-heading {
+  font-size: 1.0625rem;
+  line-height: 1.3;
+  letter-spacing: -0.011em;
+  font-weight: 600;
+}
+
+.t-body {
+  font-size: 1rem;
+  line-height: 1.62;
+  letter-spacing: 0;
+}
+
+.t-small {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  letter-spacing: 0.004em;
 }
 
 /* The name, as a wordmark: monospace and tightly tracked so it reads like a
@@ -96,22 +213,26 @@ body {
   letter-spacing: -0.03em;
 }
 
-/* Small uppercase label sitting above a section heading. */
+/* Small uppercase label sitting above a section heading. Uppercase always
+   needs positive tracking. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 500;
+  line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent);
 }
 
-/* Shared surface for experience, project and education cards. */
+/* ---------------------------------------------------------------------------
+   Surfaces
+   --------------------------------------------------------------------------- */
 .card {
   background-color: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
-  box-shadow: 0 1px 2px rgb(22 32 46 / 0.05);
+  box-shadow: var(--shadow-card);
   transition:
     border-color 150ms ease,
     box-shadow 150ms ease,
@@ -120,19 +241,47 @@ body {
 
 .card-hover:hover {
   border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  box-shadow: 0 8px 24px rgb(22 32 46 / 0.09);
+  box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
 }
 
-[data-theme='dark'] .card {
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.4);
+/* Response: feedback belongs on the press, not the release, and it must be
+   immediate. 90ms is about the shortest duration that still reads as motion
+   rather than a jump. */
+.pressable {
+  transition: transform 90ms ease-out;
 }
 
-[data-theme='dark'] .card-hover:hover {
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.5);
+.pressable:active {
+  transform: scale(0.978);
 }
 
-/* Monospace chip used for tech tags and dates. */
+/* Translucent chrome. Content scrolls underneath rather than being pushed
+   below an opaque strip. */
+.material-chrome {
+  background-color: var(--material-chrome);
+  backdrop-filter: blur(var(--blur-chrome)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(180%);
+  border-bottom: 1px solid transparent;
+  transition:
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+/* Scroll edge effect: the divider appears only where floating chrome actually
+   overlaps content, rather than sitting there permanently at the top. */
+.material-chrome[data-scrolled='true'] {
+  border-bottom-color: color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+.material-sheet {
+  background-color: var(--material-sheet);
+  backdrop-filter: blur(var(--blur-sheet)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(180%);
+  box-shadow: var(--shadow-sheet);
+  border-top: 1px solid var(--material-edge);
+}
+
 .chip {
   display: inline-block;
   padding: 0.2rem 0.55rem;
@@ -149,6 +298,13 @@ body {
   outline-offset: 3px;
 }
 
+/* ---------------------------------------------------------------------------
+   Accessibility. Three independent signals, each handled on its own terms.
+   --------------------------------------------------------------------------- */
+
+/* Reduced motion is not "no feedback" — it is non-vestibular feedback. Keep
+   opacity and colour changes that aid comprehension; drop travel and overshoot.
+   The sheet's spring is disabled in JS as well, not just here. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -156,10 +312,43 @@ body {
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 120ms !important;
   }
-  .card-hover:hover {
+  .card-hover:hover,
+  .pressable:active {
     transform: none;
+  }
+}
+
+/* Frostier, not transparent. */
+@media (prefers-reduced-transparency: reduce) {
+  .material-chrome {
+    background-color: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .material-sheet {
+    background-color: var(--panel);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Near-solid surfaces with defined borders. */
+@media (prefers-contrast: more) {
+  .material-chrome,
+  .material-sheet {
+    background-color: var(--bg);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-color: var(--text);
+  }
+  .card {
+    border-color: var(--text);
+  }
+  .chip {
+    border: 1px solid currentColor;
   }
 }

@@ -172,6 +172,50 @@ describe('content completeness', () => {
     expect(h1?.text.replace(/\s+/g, ' ').trim()).toBe('Elias Antoun');
   });
 
+  it('ships every project write-up as real content, not a fetch', () => {
+    // The bodies were dead content before the sheet existed — rendered nowhere.
+    // These phrases come from the Markdown bodies, so their presence proves the
+    // prose is server-rendered and therefore crawlable and findable in-page.
+    const raw = index().raw;
+    expect(raw).toContain('LeNet-5');
+    expect(raw).toContain('Pareto-optimal');
+    expect(raw).toContain('moving average');
+    expect(raw).toContain('camera_tf_broadcaster');
+  });
+
+  it('gives the sheet modal dialog semantics', () => {
+    const dom = index().dom;
+    const sheet = dom.querySelector('#sheet');
+    expect(sheet).toBeTruthy();
+    expect(sheet?.getAttribute('role')).toBe('dialog');
+    expect(sheet?.getAttribute('aria-modal')).toBe('true');
+    // Labelled by its heading, and starts hidden so it is not in the tab order.
+    expect(sheet?.getAttribute('aria-labelledby')).toBe('sheet-heading');
+    expect(sheet?.hasAttribute('hidden')).toBe(true);
+    expect(dom.querySelector('#sheet-scrim')?.hasAttribute('hidden')).toBe(true);
+  });
+
+  it('gives every featured project a sheet trigger and a matching source', () => {
+    const dom = index().dom;
+    const triggers = dom
+      .querySelectorAll('[data-sheet-open]')
+      .map((el) => el.getAttribute('data-sheet-open'));
+    expect(triggers.length).toBe(7);
+    for (const slug of triggers) {
+      expect(dom.querySelector(`#sheet-source-${slug}`), `no source for ${slug}`).toBeTruthy();
+    }
+  });
+
+  it('labels every button for screen readers', () => {
+    for (const page of pages) {
+      for (const button of page.dom.querySelectorAll('button')) {
+        const hasText = button.text.trim().length > 0;
+        const hasLabel = (button.getAttribute('aria-label') ?? '').trim().length > 0;
+        expect(hasText || hasLabel, `${page.path}: unlabelled button`).toBe(true);
+      }
+    }
+  });
+
   it('exposes canonical URL and Person structured data', () => {
     expect(index().dom.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://elias-antoun.github.io/'

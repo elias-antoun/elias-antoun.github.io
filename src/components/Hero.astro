@@ -7,27 +7,22 @@ const email = obfuscateEmail(socials[0].handle, 'outlook.com');
 const externalSocials = socials.filter((s) => s.href.startsWith('http'));
 ---
 
-<section id="top" class="border-b border-border">
-  <div class="mx-auto w-full max-w-5xl px-6 py-20 sm:py-28">
-    <h1 class="wordmark text-4xl leading-[1.05] sm:text-6xl lg:text-7xl">{profile.name}</h1>
-    <p class="mt-4 font-mono text-base text-muted sm:text-xl">{profile.title}</p>
+<!-- Centred, and given room to breathe: the name arrives on its own before
+     anything else competes for attention. -->
+<section id="top" class="px-6 pt-28 pb-24 sm:pt-36 sm:pb-32">
+  <div class="mx-auto max-w-4xl text-center">
+    <h1 class="wordmark t-display">{profile.name}</h1>
 
-    <p class="mt-6 max-w-2xl leading-relaxed text-muted">{profile.positioning}</p>
+    <p class="mt-5 font-mono text-base text-muted sm:text-xl">{profile.title}</p>
 
-    <dl class="mt-8 flex flex-wrap gap-x-10 gap-y-4">
-      {
-        stats.map((stat) => (
-          <div>
-            <dt class="font-mono text-2xl font-medium text-accent">{stat.value}</dt>
-            <dd class="mt-1 text-xs text-muted">{stat.label}</dd>
-          </div>
-        ))
-      }
-    </dl>
+    <p class="t-lede mx-auto mt-8 max-w-2xl text-muted">{profile.positioning}</p>
 
-    <div class="mt-10 flex flex-wrap items-center gap-3">
+    <div class="mt-11 flex flex-wrap items-center justify-center gap-3">
       <Button href={email.href}>Get in touch</Button>
       <Button href="/Elias_Antoun_Resume.pdf" variant="secondary" download>Download CV</Button>
+    </div>
+
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-6">
       {
         externalSocials.map((s) => (
           <a
@@ -42,4 +37,18 @@ const externalSocials = socials.filter((s) => s.href.startsWith('http'));
       }
     </div>
   </div>
+
+  <!-- The numbers get their own band, sitting on rules rather than in a card. -->
+  <dl
+    class="mx-auto mt-20 grid max-w-3xl grid-cols-3 gap-6 border-y border-border py-8 text-center"
+  >
+    {
+      stats.map((stat) => (
+        <div>
+          <dt class="wordmark text-3xl text-text sm:text-4xl">{stat.value}</dt>
+          <dd class="mt-2 text-xs tracking-wide text-muted uppercase">{stat.label}</dd>
+        </div>
+      ))
+    }
+  </dl>
 </section>

@@ -3,7 +3,7 @@ import ThemeToggle from './ThemeToggle.astro';
 import { nav } from '../data/site';
 ---
 
-<header class="sticky top-0 z-20 border-b border-border bg-bg/95 backdrop-blur">
+<header id="site-header" class="material-chrome sticky top-0 z-30">
   <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-6 py-3.5">
     <a href="#top" class="wordmark text-sm">Elias Antoun</a>
 
@@ -35,6 +35,28 @@ import { nav } from '../data/site';
 </header>
 
 <script>
+  // Scroll edge effect. The header is a floating material, so its divider is
+  // only meaningful once content is actually passing underneath it. Read in a
+  // rAF so a fast scroll cannot queue a layout read per event.
+  const header = document.getElementById('site-header');
+  if (header) {
+    let queued = false;
+    const sync = () => {
+      queued = false;
+      header.dataset.scrolled = String(window.scrollY > 8);
+    };
+    sync();
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(sync);
+      },
+      { passive: true }
+    );
+  }
+
   // Scroll-spy: mark the nav link whose section is currently in view.
   const links = document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]');
   const byId = new Map<string, HTMLAnchorElement>();
