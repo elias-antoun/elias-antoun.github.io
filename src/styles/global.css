@@ -1,7 +1,16 @@
 @import 'tailwindcss';
 
+/* IBM Plex — IBM's typeface for technical work. The sans and the mono are
+   metrically related, so mixing them across headings, labels and body copy
+   reads as one system rather than two fonts. */
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+@import '@fontsource/ibm-plex-sans/latin-700.css';
+
 @import '@fontsource/ibm-plex-mono/latin-400.css';
 @import '@fontsource/ibm-plex-mono/latin-500.css';
+@import '@fontsource/ibm-plex-mono/latin-600.css';
 
 /* Light palette — the default.
    --accent-soft is a tinted fill for chips; a background only, never text.
@@ -90,14 +99,10 @@
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
 
-  /* The platform font already ships optical sizing, per-size tracking tables
-     and legibility tuning. On Apple hardware this is SF Pro. Overriding it
-     needs a reason, and a portfolio does not have one — so the only webfont
-     left is the mono face for data, where a specific look does earn its keep. */
-  --font-sans:
-    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji';
-  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+
+  --radius-card: 12px;
 }
 
 html {
@@ -161,7 +166,16 @@ body {
   letter-spacing: 0.004em;
 }
 
-/* Small uppercase label. Uppercase always needs positive tracking. */
+/* The name, as a wordmark: monospace and tightly tracked so it reads like a
+   nameplate rather than a headline. Also used by the sticky header brand. */
+.wordmark {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+/* Small uppercase label sitting above a section heading. Uppercase always
+   needs positive tracking. */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 0.6875rem;
@@ -178,7 +192,7 @@ body {
 .card {
   background-color: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
   transition:
     border-color 150ms ease,
@@ -204,7 +218,7 @@ body {
 }
 
 /* Translucent chrome. Content scrolls underneath rather than being pushed
-   below an opaque strip. The bright top edge is light catching the material. */
+   below an opaque strip. */
 .material-chrome {
   background-color: var(--material-chrome);
   backdrop-filter: blur(var(--blur-chrome)) saturate(180%);
