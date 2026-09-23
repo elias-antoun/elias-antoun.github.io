@@ -256,6 +256,37 @@ body {
   transform: scale(0.978);
 }
 
+/* A card that opens as a whole while only its title is the button. The
+   ::after stretches the button's hit area over the card (the nearest
+   positioned ancestor), so the rest of the card stays outside the button and
+   keeps its own semantics.
+
+   Press feedback goes on the card, never the button: a transform on the
+   button would make it the containing block for its own ::after, shrinking
+   the hit area to the title mid-press and losing the click. */
+.card-trigger::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* Without :has() the ring stays on the title, which beats no ring at all. */
+@supports selector(:has(*)) {
+  .card-trigger:focus-visible {
+    outline: none;
+  }
+
+  .card:has(.card-trigger:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .card:has(.card-trigger:active) {
+    transform: scale(0.985);
+    transition-duration: 90ms;
+  }
+}
+
 /* Translucent chrome. Content scrolls underneath rather than being pushed
    below an opaque strip. */
 .material-chrome {
@@ -318,6 +349,11 @@ body {
   }
   .card-hover:hover,
   .pressable:active {
+    transform: none;
+  }
+  /* Its own rule: where :has() is unsupported, one bad selector would
+     invalidate the whole list above. */
+  .card:has(.card-trigger:active) {
     transform: none;
   }
 }

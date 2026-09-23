@@ -216,6 +216,38 @@ describe('content completeness', () => {
     }
   });
 
+  it('keeps buttons to phrasing content, with nothing interactive inside', () => {
+    // A button flattens its contents into one label, so a heading or list
+    // inside it drops out of screen-reader navigation. HTML forbids it too.
+    const NON_PHRASING =
+      'address, article, aside, blockquote, details, dialog, div, dl, fieldset, figure, footer, form, h1, h2, h3, h4, h5, h6, header, hr, main, nav, ol, p, pre, section, table, ul';
+    const INTERACTIVE = 'a[href], button, iframe, input, label, select, textarea, [tabindex]';
+    for (const page of pages) {
+      for (const button of page.dom.querySelectorAll('button')) {
+        const where = `${page.path}: <button>${button.text.trim()}`;
+        const tags = (selector: string) => button.querySelectorAll(selector).map((el) => el.tagName);
+        expect(tags(NON_PHRASING), where).toEqual([]);
+        expect(tags(INTERACTIVE), where).toEqual([]);
+      }
+    }
+  });
+
+  it('makes each featured title a heading that holds its sheet trigger', () => {
+    // Screen-reader users skim the projects by heading. A heading inside a
+    // button stops being one, so the button goes inside the heading instead.
+    const triggers = index().dom.querySelectorAll('#projects [data-sheet-open]');
+    const titles = triggers.map((trigger) => {
+      const title = trigger.text.trim();
+      expect(trigger.parentNode?.tagName, `${title}: trigger must sit in a heading`).toMatch(
+        /^H[2-6]$/
+      );
+      // An aria-label would replace the visible title as the button's name.
+      expect(trigger.hasAttribute('aria-label'), `${title}: aria-label`).toBe(false);
+      return title;
+    });
+    expect(titles.sort()).toEqual([...FEATURED].sort());
+  });
+
   it('exposes canonical URL and Person structured data', () => {
     expect(index().dom.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
       'https://elias-antoun.github.io/'
