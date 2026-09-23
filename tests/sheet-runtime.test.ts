@@ -10,12 +10,12 @@ import { JSDOM } from 'jsdom';
  * happen at runtime — what the sheet hides, disables and focuses when it
  * opens and closes — so this executes the real bundle from dist/ in jsdom.
  *
- * Reduced motion is forced on, which makes every open and close resolve
- * synchronously instead of over animation frames.
+ * Reduced motion is on by default, which makes every open and close resolve
+ * synchronously. With it off, animation frames are pumped by hand.
  *
- * jsdom does not implement inert, so `inert` reads back only what the script
- * set (undefined if it never touched an element). Nor does it refuse focus
- * inside an inert subtree, so focus() calls are recorded and checked instead.
+ * jsdom does not implement inert, so the suite reflects the property to the
+ * attribute the way browsers do. Nor does jsdom refuse focus inside an inert
+ * subtree, so focus() calls are recorded and checked instead.
  */
 
 const DIST = 'dist';
@@ -38,6 +38,8 @@ let window: JSDOM['window'];
 let document: Document;
 /** Every focus() call, with whether the element was inside an inert subtree. */
 let focusCalls: Array<{ el: Element; inert: boolean }>;
+/** Pending animation frame callbacks, run by pumpFrames(). */
+let frames: FrameRequestCallback[];
 
 /** True if `el` or any ancestor is inert. */
 function inInertSubtree(el: Element | null): boolean {
@@ -47,17 +49,33 @@ function inInertSubtree(el: Element | null): boolean {
   return false;
 }
 
-beforeEach(() => {
+function load({ reducedMotion = true } = {}) {
   const dom = new JSDOM(html, { url: 'https://elias-antoun.github.io/', runScripts: 'outside-only' });
   window = dom.window;
   document = window.document;
 
   window.matchMedia = ((query: string) => ({
-    matches: query.includes('prefers-reduced-motion'),
+    matches: reducedMotion && query.includes('prefers-reduced-motion'),
     media: query,
     addEventListener() {},
     removeEventListener() {},
   })) as unknown as typeof window.matchMedia;
+
+  frames = [];
+  window.requestAnimationFrame = (callback) => frames.push(callback);
+  window.cancelAnimationFrame = (id) => {
+    frames[id - 1] = () => {};
+  };
+
+  Object.defineProperty(window.HTMLElement.prototype, 'inert', {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.hasAttribute('inert');
+    },
+    set(this: HTMLElement, value: boolean) {
+      this.toggleAttribute('inert', Boolean(value));
+    },
+  });
 
   focusCalls = [];
   const focus = window.HTMLElement.prototype.focus;
@@ -67,7 +85,18 @@ beforeEach(() => {
   };
 
   window.eval(script);
-});
+}
+
+beforeEach(() => load());
+
+/** Run queued animation frames, 16ms apart, until none are left. */
+function pumpFrames(budget = 1000) {
+  let now = 0;
+  for (let next = 0; next < frames.length && budget-- > 0; next++) {
+    now += 16;
+    frames[next](now);
+  }
+}
 
 const $ = (selector: string) => document.querySelector<HTMLElement>(selector)!;
 const trigger = (slug: string) => $(`[data-sheet-open="${slug}"]`);
@@ -89,7 +118,7 @@ describe('project sheet at runtime', () => {
     expect(sheet.closest('[aria-hidden="true"]')).toBeNull();
     expect(inInertSubtree(sheet)).toBe(false);
     // The scrim stays live so a click on it can dismiss the sheet.
-    expect($('#sheet-scrim').inert).not.toBe(true);
+    expect($('#sheet-scrim').inert).toBe(false);
 
     const background = bodyChildren().filter((el) => el.id !== 'sheet' && el.id !== 'sheet-scrim');
     expect(background.map((el) => el.tagName)).toEqual(
@@ -122,11 +151,33 @@ describe('project sheet at runtime', () => {
     trigger('academy-object-detection').click();
 
     expect($('#sheet-heading').textContent).toBe('Academy Object Detection');
+    // Replaced, not appended to: nothing of the first write-up is left.
+    expect($('#sheet-body').innerHTML).toBe(
+      $('#sheet-source-academy-object-detection [data-sheet-body]').innerHTML
+    );
     expect($('#main').inert).toBe(true);
 
     pressEscape();
     expect(bodyChildren().filter((el) => el.inert).map((el) => el.tagName)).toEqual([]);
     expect(document.activeElement).toBe(trigger('academy-object-detection'));
+  });
+
+  it('restores the page once the animated close settles', () => {
+    load({ reducedMotion: false });
+    const opener = trigger('inmind-cnn');
+    opener.click();
+    pumpFrames();
+    expect($('#sheet').style.transform).toBe('translate3d(0, 0px, 0)');
+
+    pressEscape();
+    // Still on screen: the close is a spring, not an instant hide.
+    expect($('#sheet').hidden).toBe(false);
+    pumpFrames();
+
+    expect($('#sheet').hidden).toBe(true);
+    expect(bodyChildren().filter((el) => el.inert).map((el) => el.tagName)).toEqual([]);
+    expect(document.activeElement).toBe(opener);
+    expect(focusCalls.filter((call) => call.inert).map((call) => call.el.tagName)).toEqual([]);
   });
 
   it('leaves an element that was already inert alone when it closes', () => {

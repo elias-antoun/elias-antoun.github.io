@@ -284,13 +284,17 @@ describe('content completeness', () => {
   });
 
   it('stretches each card trigger over its own card, under the repo link', () => {
-    // The trigger's ::after fills its nearest positioned ancestor. That has to
-    // be the card: with nothing positioned in between, a missing `relative`
-    // on the article lets the overlay cover the page instead. A repo link not
-    // raised above the overlay can no longer be clicked.
+    // The trigger's ::after fills its containing block, which has to be the
+    // card. Anything positioned or transformed on the way — the button itself
+    // included — would shrink the overlay to that element; a card without
+    // `relative` lets it cover the page instead. A repo link not raised above
+    // the overlay can no longer be clicked.
     const after = builtCss().match(/\.card-trigger:{1,2}after\{([^}]*)\}/)?.[1] ?? '';
+    expect(after).toMatch(/content:(""|'')/);
     expect(after).toContain('position:absolute');
     expect(after).toContain('inset:0');
+    const CONTAINING_BLOCK =
+      /^(relative|absolute|fixed|sticky|pressable|transform.*|(translate|scale|rotate|skew|perspective|backdrop|contain|will-change)-.+|filter|blur.*)$/;
 
     for (const trigger of index().dom.querySelectorAll('#projects [data-sheet-open]')) {
       const title = trigger.text.trim();
@@ -298,11 +302,14 @@ describe('content completeness', () => {
       const card = path.find((el) => el.tagName === 'ARTICLE');
       expect(card, `${title}: no card`).toBeTruthy();
       expect(classes(card!), `${title}: card must be positioned`).toContain('relative');
-      const between = path.slice(0, path.indexOf(card!));
-      const positioned = between.filter((el) =>
-        classes(el).some((c) => ['relative', 'absolute', 'fixed', 'sticky'].includes(c))
+      const between = [trigger, ...path.slice(0, path.indexOf(card!))];
+      // Variants included: `active:scale-95` transforms the button mid-press.
+      const offenders = between.filter((el) =>
+        classes(el).some((c) => CONTAINING_BLOCK.test(c.slice(c.lastIndexOf(':') + 1)))
       );
-      expect(positioned.map((el) => el.tagName), `${title}: positioned in between`).toEqual([]);
+      expect(offenders.map((el) => el.tagName), `${title}: containing block in between`).toEqual(
+        []
+      );
       for (const link of card!.querySelectorAll('a[href]')) {
         expect(classes(link), `${title}: repo link`).toContain('relative');
         expect(classes(link).some((c) => /^z-\d+$/.test(c)), `${title}: repo link z-index`).toBe(true);
