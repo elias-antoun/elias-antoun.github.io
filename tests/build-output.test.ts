@@ -324,8 +324,9 @@ describe('content completeness', () => {
 
 describe('project sheet', () => {
   it('renders the sheet and its scrim as direct children of <body>', () => {
-    // While open, the sheet makes every sibling inert. Anywhere deeper — inside
-    // <main>, say — it would disable itself along with the page behind it.
+    // While open, the sheet makes every sibling but its scrim inert. Anywhere
+    // deeper — inside <main>, say — it would disable itself along with the
+    // page behind it.
     const dom = index().dom;
     for (const id of ['sheet', 'sheet-scrim']) {
       const el = dom.querySelector(`#${id}`);
@@ -344,8 +345,8 @@ describe('project sheet', () => {
   });
 
   it('keeps the write-up sources truly hidden until the sheet shows them', () => {
-    // Visually clipped copies are still read aloud after the project grid and
-    // still matched by find-in-page, invisibly. Only `hidden` removes both.
+    // Visually clipped copies are still read aloud, as a detached block at the
+    // end of the page, and still matched by find-in-page, invisibly.
     const sources = index().dom.querySelectorAll('[data-sheet-source]');
     expect(sources.length).toBe(7);
     for (const source of sources) {

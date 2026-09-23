@@ -3,8 +3,9 @@
  * The project detail sheet.
  *
  * Render this as a direct child of <body>, outside <main>. While it is open,
- * every sibling of the sheet goes inert — and a sheet nested inside one of
- * those siblings would be switched off along with the page behind it.
+ * every sibling of the sheet goes inert except its scrim, which stays live so
+ * a click on it can dismiss the sheet. A sheet nested inside one of those
+ * siblings would be switched off along with the page behind it.
  */
 import { getCollection, render } from 'astro:content';
 import { partitionProjects } from '../lib/projects';
