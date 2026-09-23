@@ -22,9 +22,12 @@ const rendered = await Promise.all(
 );
 ---
 
-<!-- Hidden sources. Not display:none — that would drop them from the
-     accessibility tree and from find-in-page. Clipped instead. -->
-<div class="sr-only">
+<!-- Hidden sources. `hidden`, not visually clipped: the prose still ships in the
+     HTML for crawlers, but screen readers don't read a second, detached copy
+     of every write-up, find-in-page doesn't match text nobody can see, and a
+     link in a write-up can't become an invisible tab stop. The sheet is where
+     the content is actually read. -->
+<div hidden>
   {
     rendered.map(({ project, Content }) => (
       <article id={`sheet-source-${project.id}`} data-sheet-source>

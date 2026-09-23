@@ -17,6 +17,13 @@ function htmlFiles(dir: string): string[] {
 let pages: Array<{ path: string; raw: string; dom: HTMLElement }>;
 const index = () => pages.find((p) => p.path === INDEX)!;
 
+/** Every ancestor of `el`, nearest first. */
+function ancestors(el: HTMLElement): HTMLElement[] {
+  const out: HTMLElement[] = [];
+  for (let node = el.parentNode; node; node = node.parentNode) out.push(node);
+  return out;
+}
+
 beforeAll(() => {
   if (!existsSync(DIST)) {
     throw new Error('dist/ not found — run `npm run build` before this suite');
@@ -175,7 +182,7 @@ describe('content completeness', () => {
   it('ships every project write-up as real content, not a fetch', () => {
     // The bodies were dead content before the sheet existed — rendered nowhere.
     // These phrases come from the Markdown bodies, so their presence proves the
-    // prose is server-rendered and therefore crawlable and findable in-page.
+    // prose is server-rendered and therefore crawlable.
     const raw = index().raw;
     expect(raw).toContain('LeNet-5');
     expect(raw).toContain('Pareto-optimal');
@@ -275,6 +282,33 @@ describe('project sheet', () => {
   it('never nests a dialog inside the main landmark', () => {
     for (const page of pages) {
       expect(page.dom.querySelectorAll('main [role="dialog"], main dialog'), page.path).toEqual([]);
+    }
+  });
+
+  it('keeps the write-up sources truly hidden until the sheet shows them', () => {
+    // Visually clipped copies are still read aloud after the project grid and
+    // still matched by find-in-page, invisibly. Only `hidden` removes both.
+    const sources = index().dom.querySelectorAll('[data-sheet-source]');
+    expect(sources.length).toBe(7);
+    for (const source of sources) {
+      const hiddenBy = [source, ...ancestors(source)].find(
+        (el) => el.hasAttribute('hidden') && el.getAttribute('hidden') !== 'until-found'
+      );
+      expect(hiddenBy, `${source.id} is reachable`).toBeTruthy();
+    }
+  });
+});
+
+describe('visually hidden content', () => {
+  it('never puts focusable content inside a visually clipped element', () => {
+    // Keyboard focus would land on something the user cannot see. The skip
+    // link is exempt: it is itself sr-only and becomes visible on focus.
+    const FOCUSABLE = 'a[href], button, input, select, textarea, iframe, [tabindex]';
+    for (const page of pages) {
+      for (const clipped of page.dom.querySelectorAll('.sr-only')) {
+        const inside = clipped.querySelectorAll(FOCUSABLE).map((el) => el.tagName);
+        expect(inside, page.path).toEqual([]);
+      }
     }
   });
 });
