@@ -9,6 +9,7 @@ import Skills from '../components/Skills.astro';
 import Education from '../components/Education.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
+import ProjectSheet from '../components/ProjectSheet.astro';
 import { profile } from '../data/site';
 ---
 
@@ -24,4 +25,6 @@ import { profile } from '../data/site';
     <Contact />
   </main>
   <Footer />
+  <!-- Outside <main>: the sheet makes its siblings inert while it is open. -->
+  <ProjectSheet />
 </Layout>

@@ -227,3 +227,22 @@ describe('content completeness', () => {
     expect(parsed.name).toBe('Elias Antoun');
   });
 });
+
+describe('project sheet', () => {
+  it('renders the sheet and its scrim as direct children of <body>', () => {
+    // While open, the sheet makes every sibling inert. Anywhere deeper — inside
+    // <main>, say — it would disable itself along with the page behind it.
+    const dom = index().dom;
+    for (const id of ['sheet', 'sheet-scrim']) {
+      const el = dom.querySelector(`#${id}`);
+      expect(el, `#${id} missing`).toBeTruthy();
+      expect(el?.parentNode?.tagName, `#${id} must be a child of <body>`).toBe('BODY');
+    }
+  });
+
+  it('never nests a dialog inside the main landmark', () => {
+    for (const page of pages) {
+      expect(page.dom.querySelectorAll('main [role="dialog"], main dialog'), page.path).toEqual([]);
+    }
+  });
+});

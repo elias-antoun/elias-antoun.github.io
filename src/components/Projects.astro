@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 import Section from './Section.astro';
 import ProjectCard from './ProjectCard.astro';
-import ProjectSheet from './ProjectSheet.astro';
 import { partitionProjects } from '../lib/projects';
 
 const entries = await getCollection('projects');
@@ -41,5 +40,3 @@ const { featured, compact } = partitionProjects(entries);
     )
   }
 </Section>
-
-<ProjectSheet projects={featured} />

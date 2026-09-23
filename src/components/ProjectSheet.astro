@@ -1,16 +1,21 @@
 ---
-import { render, type CollectionEntry } from 'astro:content';
+/**
+ * The project detail sheet.
+ *
+ * Render this as a direct child of <body>, outside <main>. While it is open,
+ * every sibling of the sheet goes inert — and a sheet nested inside one of
+ * those siblings would be switched off along with the page behind it.
+ */
+import { getCollection, render } from 'astro:content';
+import { partitionProjects } from '../lib/projects';
 
-interface Props {
-  projects: CollectionEntry<'projects'>[];
-}
-const { projects } = Astro.props;
+const { featured } = partitionProjects(await getCollection('projects'));
 
 // Render each project body once, server-side, into a hidden source node. The
 // sheet clones from these — so the full write-up is real, crawlable content in
 // the page rather than something fetched on demand.
 const rendered = await Promise.all(
-  projects.map(async (project) => ({
+  featured.map(async (project) => ({
     project,
     Content: (await render(project)).Content,
   }))
@@ -73,6 +78,7 @@ const rendered = await Promise.all(
 <script>
   import { Spring } from '../lib/spring';
   import { project as projectMomentum, rubberband, VelocityTracker } from '../lib/gesture';
+  import { inertExcept } from '../lib/inert';
 
   const sheet = document.getElementById('sheet');
   const scrim = document.getElementById('sheet-scrim');
@@ -97,6 +103,7 @@ const rendered = await Promise.all(
     let dragging = false;
     let grabOffset = 0;
     let lastFocused: HTMLElement | null = null;
+    let restoreBackground: (() => void) | null = null;
     const tracker = new VelocityTracker();
 
     /**
@@ -179,7 +186,9 @@ const rendered = await Promise.all(
       sheet!.hidden = true;
       scrim!.hidden = true;
       document.body.style.overflow = '';
-      document.getElementById('main')?.removeAttribute('aria-hidden');
+      // Wake the page before returning focus: an inert element cannot take it.
+      restoreBackground?.();
+      restoreBackground = null;
       lastFocused?.focus();
       lastFocused = null;
     }
@@ -195,7 +204,13 @@ const rendered = await Promise.all(
       sheet!.hidden = false;
       scrim!.hidden = false;
       document.body.style.overflow = 'hidden';
-      document.getElementById('main')?.setAttribute('aria-hidden', 'true');
+      // Everything but the sheet and its scrim leaves the accessibility tree,
+      // the tab order and hit-testing. The header and footer too, not just
+      // <main> — they sit outside it and would otherwise stay reachable.
+      restoreBackground ??= inertExcept(
+        [...document.body.children].filter((el) => el instanceof HTMLElement),
+        [sheet!, scrim!]
+      );
 
       // Measure after it is in the layout, then start from fully closed so the
       // sheet rises from the bottom edge it will return to.
