@@ -24,6 +24,32 @@ function ancestors(el: HTMLElement): HTMLElement[] {
   return out;
 }
 
+/** Every built stylesheet, concatenated. */
+function builtCss(): string {
+  const dir = join(DIST, '_astro');
+  return readdirSync(dir)
+    .filter((name) => name.endsWith('.css'))
+    .map((name) => readFileSync(join(dir, name), 'utf8'))
+    .join('\n');
+}
+
+/** Split a selector list on its top-level commas, leaving `:has(a, b)` whole. */
+function splitSelectorList(list: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] === '(') depth++;
+    else if (list[i] === ')') depth--;
+    else if (list[i] === ',' && depth === 0) {
+      parts.push(list.slice(start, i));
+      start = i + 1;
+    }
+  }
+  parts.push(list.slice(start));
+  return parts.map((part) => part.trim());
+}
+
 beforeAll(() => {
   if (!existsSync(DIST)) {
     throw new Error('dist/ not found — run `npm run build` before this suite');
@@ -296,6 +322,17 @@ describe('project sheet', () => {
       );
       expect(hiddenBy, `${source.id} is reachable`).toBeTruthy();
     }
+  });
+});
+
+describe('built CSS', () => {
+  it('never lets a :has() selector share a rule with other selectors', () => {
+    // The minifier merges rules with identical bodies into one selector list.
+    // A browser without :has() drops such a list whole, taking every other
+    // selector in it down too — reduced-motion overrides included.
+    const preludes = [...builtCss().matchAll(/(?:^|[{};])([^{};@]+)\{/g)].map((m) => m[1]);
+    const mixed = preludes.filter((p) => p.includes(':has(') && splitSelectorList(p).length > 1);
+    expect(mixed).toEqual([]);
   });
 });
 

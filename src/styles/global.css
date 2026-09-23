@@ -285,6 +285,15 @@ body {
     transform: scale(0.985);
     transition-duration: 90ms;
   }
+
+  /* Here, not in the reduced-motion block below: the minifier merges rules
+     with identical bodies into one selector list, and a browser without
+     :has() drops such a list whole — taking the other selectors with it. */
+  @media (prefers-reduced-motion: reduce) {
+    .card:has(.card-trigger:active) {
+      transform: none;
+    }
+  }
 }
 
 /* Translucent chrome. Content scrolls underneath rather than being pushed
@@ -349,11 +358,6 @@ body {
   }
   .card-hover:hover,
   .pressable:active {
-    transform: none;
-  }
-  /* Its own rule: where :has() is unsupported, one bad selector would
-     invalidate the whole list above. */
-  .card:has(.card-trigger:active) {
     transform: none;
   }
 }
