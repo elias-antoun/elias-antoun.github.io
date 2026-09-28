@@ -149,45 +149,4 @@ const VIEWBOX = '0 0 320 180';
     )
   }
 
-  {
-    slug === 'license-plate-recognition' && (
-      <svg viewBox={VIEWBOX} class="block h-full w-full" role="presentation">
-        <rect
-          x="46"
-          y="62"
-          width="228"
-          height="66"
-          rx="6"
-          fill="var(--panel)"
-          stroke="var(--border)"
-          stroke-width="1.5"
-        />
-        <g fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="5 4">
-          <rect x="38" y="54" width="244" height="82" rx="8" />
-        </g>
-        <g fill="none" stroke="var(--accent)" stroke-width="1.2" opacity="0.8">
-          <rect x="66" y="76" width="26" height="38" rx="2" />
-          <rect x="100" y="76" width="26" height="38" rx="2" />
-          <rect x="134" y="76" width="26" height="38" rx="2" />
-          <rect x="176" y="76" width="26" height="38" rx="2" />
-          <rect x="210" y="76" width="26" height="38" rx="2" />
-        </g>
-        <g
-          font-family="var(--font-mono)"
-          font-size="22"
-          fill="var(--text)"
-          text-anchor="middle"
-        >
-          <text x="79" y="106">4</text>
-          <text x="113" y="106">7</text>
-          <text x="147" y="106">2</text>
-          <text x="189" y="106">B</text>
-          <text x="223" y="106">K</text>
-        </g>
-        <text x="38" y="42" font-family="var(--font-mono)" font-size="10" fill="var(--muted)">
-          detect → segment → correlate
-        </text>
-      </svg>
-    )
-  }
 </div>
