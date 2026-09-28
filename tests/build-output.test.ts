@@ -378,6 +378,23 @@ describe('project sheet', () => {
 });
 
 describe('built CSS', () => {
+  it('ships every backdrop-filter in both its standard and -webkit- forms', () => {
+    // Chrome and Firefox read only the standard property; Safari before 18
+    // reads only the -webkit- one. Both have been lost before: a hand-written
+    // -webkit- line made the minifier drop the standard one, and minifying
+    // with no browser targets dropped the prefix.
+    const rules = [...builtCss().matchAll(/([^{};@]+)\{([^{}]*)\}/g)];
+    const blurred = rules.filter(([, , body]) => body.includes('backdrop-filter:'));
+    expect(blurred.length).toBeGreaterThan(0);
+    const incomplete = blurred
+      .filter(
+        ([, , body]) =>
+          !/(?:^|;)backdrop-filter:/.test(body) || !body.includes('-webkit-backdrop-filter:')
+      )
+      .map(([, selector]) => selector.trim());
+    expect(incomplete).toEqual([]);
+  });
+
   it('never lets a :has() selector share a rule with other selectors', () => {
     // The minifier merges rules with identical bodies into one selector list.
     // A browser without :has() drops such a list whole, taking every other
