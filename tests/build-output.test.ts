@@ -283,6 +283,18 @@ describe('content completeness', () => {
     expect(titles.sort()).toEqual([...FEATURED].sort());
   });
 
+  it('serves card covers in sizes that fit the card', () => {
+    // A cover renders at most ~500px wide. Without a srcset every visitor
+    // downloads the full-size original, several times the bytes needed.
+    const covers = index().dom.querySelectorAll('#projects article img');
+    expect(covers.length).toBeGreaterThan(0);
+    for (const img of covers) {
+      const where = img.getAttribute('alt') ?? '';
+      expect(img.getAttribute('srcset'), where).toMatch(/ 500w/);
+      expect(img.getAttribute('sizes'), where).toContain('496px');
+    }
+  });
+
   it('stretches each card trigger over its own card, under the repo link', () => {
     // The trigger's ::after fills its containing block, which has to be the
     // card. Anything positioned or transformed on the way — the button itself

@@ -8,6 +8,11 @@ interface Props {
 }
 const { project } = Astro.props;
 const { title, summary, tags, cover, coverAlt, links, metrics } = project.data;
+
+// How wide the card renders: half the 1024px column less the 32px gap on wide
+// screens, half the viewport less gutters from `sm`, the full width below it.
+const coverSizes =
+  '(min-width: 1072px) 496px, (min-width: 640px) calc(50vw - 40px), calc(100vw - 48px)';
 ---
 
 <!-- The whole card opens the sheet, but only the title is the button: its
@@ -19,7 +24,14 @@ const { title, summary, tags, cover, coverAlt, links, metrics } = project.data;
   <div class="aspect-video w-full border-b border-border">
     {
       cover && coverAlt ? (
-        <Image src={cover} alt={coverAlt} loading="lazy" class="h-full w-full object-cover" />
+        <Image
+          src={cover}
+          alt={coverAlt}
+          widths={[500, 750, 1000, 1500]}
+          sizes={coverSizes}
+          loading="lazy"
+          class="h-full w-full object-cover"
+        />
       ) : (
         <ProjectCover slug={project.id} />
       )
