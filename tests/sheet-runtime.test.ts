@@ -150,7 +150,7 @@ describe('project sheet at runtime', () => {
     pressEscape();
     trigger('academy-object-detection').click();
 
-    expect($('#sheet-heading').textContent).toBe('Academy Object Detection');
+    expect($('#sheet-heading').textContent).toBe('LOCO Warehouse Object Detection');
     // Replaced, not appended to: nothing of the first write-up is left.
     expect($('#sheet-body').innerHTML).toBe(
       $('#sheet-source-academy-object-detection [data-sheet-body]').innerHTML

@@ -153,7 +153,7 @@ describe('accessibility invariants', () => {
 describe('content completeness', () => {
   const FEATURED = [
     'InMindCNN',
-    'Academy Object Detection',
+    'LOCO Warehouse Object Detection',
     'Multi-Sensor IMU Pipeline',
     'Robot Perception Manager',
     'DevPulse Agentic Workspace',
