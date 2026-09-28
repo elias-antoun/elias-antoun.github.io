@@ -46,9 +46,12 @@ describe('project entries', () => {
     }
   });
 
-  it('sets no cover field, since no cover images exist yet', () => {
+  it('sets a cover only on featured entries, the only cards that show one', () => {
     for (const slug of slugs) {
-      expect(read(slug), `${slug} sets a cover`).not.toMatch(/^cover:/m);
+      const entry = read(slug);
+      if (/^cover:/m.test(entry)) {
+        expect(entry, `${slug} sets a cover it never shows`).toMatch(/^featured:\s*true\s*$/m);
+      }
     }
   });
 
