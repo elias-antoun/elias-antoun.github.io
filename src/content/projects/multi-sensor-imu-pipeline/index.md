@@ -13,6 +13,8 @@ Three cooperating ROS 2 nodes: a sensor driver publishing simulated IMU readings
 and a logger subscribing to both topics to emit a raw-versus-filtered comparison every
 second.
 
+![Terminal log from a run of the pipeline: sensor_driver publishing accelerometer readings, filter_node publishing the filtered values, and logger_node reporting raw accel_x of -0.278 against a filtered -0.362, a difference of -0.085.](./pipeline-log.png)
+
 The pipeline is configured through a YAML parameter file and started from a single launch
 file, so filter window size and publish rates can be varied without recompiling. It is a
 deliberately small system built to get the ROS 2 fundamentals right: topic design,
