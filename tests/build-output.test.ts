@@ -164,10 +164,11 @@ describe('content completeness', () => {
     'Brain Bits Memory Game',
     'FIRE-X Fire-Fighting Robot',
     'Clinic Management System',
+    '8085 Microprocessor in VHDL',
   ];
   const COMPACT = ['MIPS Control Unit in VHDL', 'Travel Agency', 'Data Structures Project'];
 
-  it('renders all twelve featured project titles', () => {
+  it('renders all thirteen featured project titles', () => {
     for (const title of FEATURED) {
       expect(index().raw, `missing featured project: ${title}`).toContain(title);
     }
