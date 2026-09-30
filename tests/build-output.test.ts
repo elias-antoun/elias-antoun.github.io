@@ -159,10 +159,11 @@ describe('content completeness', () => {
     'DevPulse Agentic Workspace',
     'Hand Gesture Controlled Robotic Car',
     'License Plate Recognition System',
+    'Pinball Scoring and Drain System',
   ];
   const COMPACT = ['Clinic Management System', 'Travel Agency', 'Data Structures Project'];
 
-  it('renders all seven featured project titles', () => {
+  it('renders all eight featured project titles', () => {
     for (const title of FEATURED) {
       expect(index().raw, `missing featured project: ${title}`).toContain(title);
     }
@@ -235,7 +236,7 @@ describe('content completeness', () => {
     const triggers = dom
       .querySelectorAll('[data-sheet-open]')
       .map((el) => el.getAttribute('data-sheet-open'));
-    expect(triggers.length).toBe(7);
+    expect(triggers.length).toBe(FEATURED.length);
     for (const slug of triggers) {
       expect(dom.querySelector(`#sheet-source-${slug}`), `no source for ${slug}`).toBeTruthy();
     }
@@ -367,7 +368,9 @@ describe('project sheet', () => {
     // Visually clipped copies are still read aloud, as a detached block at the
     // end of the page, and still matched by find-in-page, invisibly.
     const sources = index().dom.querySelectorAll('[data-sheet-source]');
-    expect(sources.length).toBe(7);
+    const triggers = index().dom.querySelectorAll('[data-sheet-open]');
+    expect(sources.length).toBeGreaterThan(0);
+    expect(sources.length).toBe(triggers.length);
     for (const source of sources) {
       const hiddenBy = [source, ...ancestors(source)].find(
         (el) => el.hasAttribute('hidden') && el.getAttribute('hidden') !== 'until-found'
