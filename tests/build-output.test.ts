@@ -162,10 +162,11 @@ describe('content completeness', () => {
     'Pinball Scoring and Drain System',
     'Smart Treadmill with Health Monitoring',
     'Brain Bits Memory Game',
+    'FIRE-X Fire-Fighting Robot',
   ];
   const COMPACT = ['Clinic Management System', 'Travel Agency', 'Data Structures Project'];
 
-  it('renders all ten featured project titles', () => {
+  it('renders all eleven featured project titles', () => {
     for (const title of FEATURED) {
       expect(index().raw, `missing featured project: ${title}`).toContain(title);
     }
