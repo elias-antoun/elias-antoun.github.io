@@ -25,10 +25,10 @@ describe('project entries', () => {
     expect(slugs).toHaveLength(15);
   });
 
-  it('splits eleven featured and four compact', () => {
+  it('splits twelve featured and three compact', () => {
     const featured = slugs.filter((s) => /^featured:\s*true\s*$/m.test(read(s)));
-    expect(featured).toHaveLength(11);
-    expect(slugs.length - featured.length).toBe(4);
+    expect(featured).toHaveLength(12);
+    expect(slugs.length - featured.length).toBe(3);
   });
 
   it('gives every entry a unique order value', () => {

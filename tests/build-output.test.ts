@@ -163,21 +163,17 @@ describe('content completeness', () => {
     'Smart Treadmill with Health Monitoring',
     'Brain Bits Memory Game',
     'FIRE-X Fire-Fighting Robot',
-  ];
-  const COMPACT = [
-    'MIPS Control Unit in VHDL',
     'Clinic Management System',
-    'Travel Agency',
-    'Data Structures Project',
   ];
+  const COMPACT = ['MIPS Control Unit in VHDL', 'Travel Agency', 'Data Structures Project'];
 
-  it('renders all eleven featured project titles', () => {
+  it('renders all twelve featured project titles', () => {
     for (const title of FEATURED) {
       expect(index().raw, `missing featured project: ${title}`).toContain(title);
     }
   });
 
-  it('renders all four compact project titles under an "Also built" heading', () => {
+  it('renders all three compact project titles under an "Also built" heading', () => {
     expect(index().raw).toContain('Also built');
     for (const title of COMPACT) {
       expect(index().raw, `missing compact project: ${title}`).toContain(title);
