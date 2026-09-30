@@ -21,14 +21,14 @@ const slugs = readdirSync(DIR, { withFileTypes: true })
 const read = (slug: string) => readFileSync(join(DIR, slug, 'index.md'), 'utf8');
 
 describe('project entries', () => {
-  it('has fourteen project folders', () => {
-    expect(slugs).toHaveLength(14);
+  it('has fifteen project folders', () => {
+    expect(slugs).toHaveLength(15);
   });
 
-  it('splits eleven featured and three compact', () => {
+  it('splits eleven featured and four compact', () => {
     const featured = slugs.filter((s) => /^featured:\s*true\s*$/m.test(read(s)));
     expect(featured).toHaveLength(11);
-    expect(slugs.length - featured.length).toBe(3);
+    expect(slugs.length - featured.length).toBe(4);
   });
 
   it('gives every entry a unique order value', () => {

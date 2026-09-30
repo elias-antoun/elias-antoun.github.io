@@ -164,7 +164,12 @@ describe('content completeness', () => {
     'Brain Bits Memory Game',
     'FIRE-X Fire-Fighting Robot',
   ];
-  const COMPACT = ['Clinic Management System', 'Travel Agency', 'Data Structures Project'];
+  const COMPACT = [
+    'MIPS Control Unit in VHDL',
+    'Clinic Management System',
+    'Travel Agency',
+    'Data Structures Project',
+  ];
 
   it('renders all eleven featured project titles', () => {
     for (const title of FEATURED) {
@@ -172,7 +177,7 @@ describe('content completeness', () => {
     }
   });
 
-  it('renders all three compact project titles under an "Also built" heading', () => {
+  it('renders all four compact project titles under an "Also built" heading', () => {
     expect(index().raw).toContain('Also built');
     for (const title of COMPACT) {
       expect(index().raw, `missing compact project: ${title}`).toContain(title);
