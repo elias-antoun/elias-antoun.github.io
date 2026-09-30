@@ -21,13 +21,13 @@ const slugs = readdirSync(DIR, { withFileTypes: true })
 const read = (slug: string) => readFileSync(join(DIR, slug, 'index.md'), 'utf8');
 
 describe('project entries', () => {
-  it('has ten project folders', () => {
-    expect(slugs).toHaveLength(10);
+  it('has sixteen project folders', () => {
+    expect(slugs).toHaveLength(16);
   });
 
-  it('splits seven featured and three compact', () => {
+  it('splits thirteen featured and three compact', () => {
     const featured = slugs.filter((s) => /^featured:\s*true\s*$/m.test(read(s)));
-    expect(featured).toHaveLength(7);
+    expect(featured).toHaveLength(13);
     expect(slugs.length - featured.length).toBe(3);
   });
 
@@ -46,9 +46,12 @@ describe('project entries', () => {
     }
   });
 
-  it('sets no cover field, since no cover images exist yet', () => {
+  it('sets a cover only on featured entries, the only cards that show one', () => {
     for (const slug of slugs) {
-      expect(read(slug), `${slug} sets a cover`).not.toMatch(/^cover:/m);
+      const entry = read(slug);
+      if (/^cover:/m.test(entry)) {
+        expect(entry, `${slug} sets a cover it never shows`).toMatch(/^featured:\s*true\s*$/m);
+      }
     }
   });
 

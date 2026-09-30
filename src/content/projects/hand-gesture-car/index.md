@@ -4,11 +4,15 @@ summary: "Real-time hand-gesture recognition driving a wireless robotic car, wit
 featured: true
 order: 60
 tags: ["Python", "OpenCV", "Mediapipe", "Embedded"]
+cover: ./gesture-tracking.webp
+coverAlt: "The project's hand-tracking window: MediaPipe's landmark skeleton drawn over a raised open hand, beside the Python code that reads the landmarks."
 ---
 
 An interactive motor control system built on OpenCV and Mediapipe. Hand landmarks are
 tracked from a live camera feed, classified into discrete gestures, and translated into
 motor commands sent wirelessly to a NodeMCU on the vehicle.
+
+![The project's hand-tracking window: MediaPipe's landmark skeleton drawn over a raised open hand, beside the Python code that reads the landmarks.](./gesture-tracking.webp)
 
 A Python GUI displays the recognised gesture and the resulting command as they happen,
 which turned out to be essential for debugging: gesture misclassification is far easier

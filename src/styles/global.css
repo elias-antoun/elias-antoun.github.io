@@ -256,12 +256,55 @@ body {
   transform: scale(0.978);
 }
 
+/* A card that opens as a whole while only its title is the button. The
+   ::after stretches the button's hit area over the card (the nearest
+   positioned ancestor), so the rest of the card stays outside the button and
+   keeps its own semantics.
+
+   Press feedback goes on the card, never the button: a transform on the
+   button would make it the containing block for its own ::after, shrinking
+   the hit area to the title mid-press and losing the click. */
+.card-trigger::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* Without :has() the ring stays on the title, which beats no ring at all. */
+@supports selector(:has(*)) {
+  .card-trigger:focus-visible {
+    outline: none;
+  }
+
+  .card:has(.card-trigger:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .card:has(.card-trigger:active) {
+    transform: scale(0.985);
+    transition-duration: 90ms;
+  }
+
+  /* Here, not in the reduced-motion block below: the minifier merges rules
+     with identical bodies into one selector list, and a browser without
+     :has() drops such a list whole — taking the other selectors with it. */
+  @media (prefers-reduced-motion: reduce) {
+    .card:has(.card-trigger:active) {
+      transform: none;
+    }
+  }
+}
+
 /* Translucent chrome. Content scrolls underneath rather than being pushed
-   below an opaque strip. */
+   below an opaque strip.
+
+   Write backdrop-filter unprefixed only: the build adds -webkit- for Safari,
+   and a hand-written -webkit- line after it makes the minifier drop the
+   standard property, so Chrome and Firefox get no blur. */
 .material-chrome {
   background-color: var(--material-chrome);
   backdrop-filter: blur(var(--blur-chrome)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--blur-chrome)) saturate(180%);
   border-bottom: 1px solid transparent;
   transition:
     border-color 200ms ease,
@@ -277,7 +320,6 @@ body {
 .material-sheet {
   background-color: var(--material-sheet);
   backdrop-filter: blur(var(--blur-sheet)) saturate(180%);
-  -webkit-backdrop-filter: blur(var(--blur-sheet)) saturate(180%);
   box-shadow: var(--shadow-sheet);
   border-top: 1px solid var(--material-edge);
 }
@@ -327,12 +369,10 @@ body {
   .material-chrome {
     background-color: var(--bg);
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
   .material-sheet {
     background-color: var(--panel);
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
   }
 }
 
@@ -342,7 +382,6 @@ body {
   .material-sheet {
     background-color: var(--bg);
     backdrop-filter: none;
-    -webkit-backdrop-filter: none;
     border-color: var(--text);
   }
   .card {

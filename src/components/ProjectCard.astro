@@ -8,49 +8,66 @@ interface Props {
 }
 const { project } = Astro.props;
 const { title, summary, tags, cover, coverAlt, links, metrics } = project.data;
+
+// How wide the card renders: half the 1024px column less the 32px gap on wide
+// screens, half the viewport less gutters from `sm`, the full width below it.
+const coverSizes =
+  '(min-width: 1072px) 496px, (min-width: 640px) calc(50vw - 40px), calc(100vw - 48px)';
 ---
 
-<article class="card card-hover flex flex-col overflow-hidden">
-  <!-- The card body is one large button rather than the whole article, so the
-       repository link below stays a sibling instead of a nested interactive. -->
-  <button
-    type="button"
-    data-sheet-open={project.id}
-    class="pressable flex flex-1 flex-col text-left"
-    aria-label={`Read more about ${title}`}
-  >
-    <div class="aspect-video w-full border-b border-border">
-      {
-        cover && coverAlt ? (
-          <Image src={cover} alt={coverAlt} loading="lazy" class="h-full w-full object-cover" />
-        ) : (
-          <ProjectCover slug={project.id} />
-        )
-      }
+<!-- The whole card opens the sheet, but only the title is the button: its
+     ::after stretches over the card (.card-trigger in global.css). A button
+     flattens everything inside it into one label, so the heading, summary and
+     metrics stay outside it where screen readers can still reach them. The
+     repository link is raised above the overlay so it stays clickable. -->
+<article class="card card-hover relative flex flex-col overflow-hidden">
+  <div class="aspect-video w-full border-b border-border">
+    {
+      cover && coverAlt ? (
+        <Image
+          src={cover}
+          alt={coverAlt}
+          widths={[500, 750, 1000, 1500]}
+          sizes={coverSizes}
+          loading="lazy"
+          class="h-full w-full object-cover"
+        />
+      ) : (
+        <ProjectCover slug={project.id} />
+      )
+    }
+  </div>
+
+  <div class="flex flex-1 flex-col p-5">
+    <h3 class="t-heading">
+      <button
+        type="button"
+        data-sheet-open={project.id}
+        aria-haspopup="dialog"
+        class="card-trigger text-left"
+      >
+        {title}
+      </button>
+    </h3>
+    <p class="t-small mt-2 flex-1 text-muted">{summary}</p>
+
+    {
+      metrics && metrics.length > 0 && (
+        <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          {metrics.map((metric) => (
+            <div>
+              <dt class="font-mono text-sm font-medium text-accent">{metric.value}</dt>
+              <dd class="mt-0.5 text-[0.6875rem] text-muted">{metric.label}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+
+    <div class="mt-5 flex flex-wrap items-center gap-1.5">
+      {tags.map((tag) => <span class="chip">{tag}</span>)}
     </div>
-
-    <div class="flex flex-1 flex-col p-5">
-      <h3 class="t-heading">{title}</h3>
-      <p class="t-small mt-2 flex-1 text-muted">{summary}</p>
-
-      {
-        metrics && metrics.length > 0 && (
-          <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-            {metrics.map((metric) => (
-              <div>
-                <dt class="font-mono text-sm font-medium text-accent">{metric.value}</dt>
-                <dd class="mt-0.5 text-[0.6875rem] text-muted">{metric.label}</dd>
-              </div>
-            ))}
-          </dl>
-        )
-      }
-
-      <div class="mt-5 flex flex-wrap items-center gap-1.5">
-        {tags.map((tag) => <span class="chip">{tag}</span>)}
-      </div>
-    </div>
-  </button>
+  </div>
 
   {
     links?.repo && (
@@ -59,7 +76,7 @@ const { title, summary, tags, cover, coverAlt, links, metrics } = project.data;
           href={links.repo}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+          class="relative z-10 inline-flex w-fit items-center gap-1.5 text-sm font-medium text-accent hover:underline"
         >
           View repository
           <span aria-hidden="true">&rarr;</span>
